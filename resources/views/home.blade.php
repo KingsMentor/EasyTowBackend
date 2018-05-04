@@ -24,7 +24,7 @@
 
 
                        <label>Phone No</label>
-                       <p style="margin-bottom: 10px"><input placeholder="Phone Num" value="{{ auth()->user()->phone_no }}" name="phone_no"></p>
+                       <p style="margin-bottom: 10px"><input placeholder="Phone number" value="{{ auth()->user()->phone_no }}" name="phone_no"></p>
                        <br/>
 
                    </div>

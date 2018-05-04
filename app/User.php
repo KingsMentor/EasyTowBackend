@@ -25,4 +25,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function trucks(){
+        return $this->hasMany(Vehicle::class,'agent_id','id');
+    }
+
+    public function drivers(){
+        return $this->hasMany(Driver::class,'agent_id','id');
+    }
 }

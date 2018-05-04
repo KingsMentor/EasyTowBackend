@@ -5,7 +5,7 @@
     }
 </style>
 @if($errors->any())
-    <ul class="alert alert-danger" style="list-style: none;">
+    <ul class="c-alert c-alert--danger alert u-mb-medium" style="list-style: none;">
         @foreach($errors->all() as $error)
 
             <li>{{ $error }}</li>
@@ -17,9 +17,15 @@
 <div class="flash-message">
     @foreach (['danger', 'warning', 'success', 'info'] as $msg)
         @if(Session::has('alert-' . $msg))
+            <div class="c-alert c-alert--{{ $msg }} alert u-mb-medium">
 
-            <p class="alert alert-{{ $msg }}" >{!!  Session::get('alert-' . $msg)  !!}<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a></p>
 
+                <div class="">
+                    <p>{!!  Session::get('alert-' . $msg)  !!}</p>
+                </div>
+
+                <button class="c-close" data-dismiss="alert" type="button">×</button>
+            </div>
         @endif
     @endforeach
 </div>
