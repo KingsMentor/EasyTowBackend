@@ -23,7 +23,7 @@
     <div class="o-page__sidebar js-page-sidebar">
         <aside class="c-sidebar">
             <div class="c-sidebar__brand">
-                <a href="#"><img src="{{ url('images/bdd.png') }}"  alt="Neat"></a>
+                <p class="easy_tow_logo">EasyTow</p>
             </div>
 
             <!-- Scrollable -->
