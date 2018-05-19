@@ -252,6 +252,7 @@ class HomeController extends Controller
     }
 
     public function company_delete($id){
+        $id = encrypt_decrypt('decrypt',$id);
         $company = Company::where('id',$id)->delete();
         session()->flash('alert-success',"Company has been deleted");
         return back();
