@@ -179,6 +179,7 @@
     </div>
 </div>
 <script src="{{ url('admin/js/neat.js') }}"></script>
+@yield('script')
 <script>
 
     @if(Request::path() != "add/truck")
