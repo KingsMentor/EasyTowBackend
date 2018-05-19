@@ -189,7 +189,7 @@
             $('#individual').show('slow');
             $('#company_form').hide('slow');
 
-        }else if(val_form == "1"){
+        }else if(val_form > 1){
             $('#individual').hide('slow');
             $('#company').show('slow');
             $('#company_form').show('slow');
