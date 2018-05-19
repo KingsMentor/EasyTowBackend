@@ -33,6 +33,11 @@
                             </div>
 
                             <div class="c-field u-mb-medium">
+                                <label class="c-field__label" for="user-name">Phone No</label>
+                                <input class="c-input" type="text" name="phone_no" value="{{ old('phone_no') }}" id="user-name">
+                            </div>
+
+                            <div class="c-field u-mb-medium">
                                 <label class="c-field__label" for="user-email">Profile Pic</label>
                                 <input class="c-input" type="file" name="profile_pic" id="user-email">
                                 <span style="color: red;font-size: 13px;">jpg, png, gif files supported</span>

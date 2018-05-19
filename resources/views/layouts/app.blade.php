@@ -38,7 +38,7 @@
                     <a class="c-navbar__nav-link" href="{{ url('/') }}">Home</a>
                 </li>
                 <li class="c-navbar__nav-item">
-                    <a class="c-navbar__nav-link" href="{{ url('/dashboard') }}">Dashboard</a>
+                    <a class="c-navbar__nav-link" href="{{ url('/home') }}">Dashboard</a>
                 </li>
             </ul>
         </nav>

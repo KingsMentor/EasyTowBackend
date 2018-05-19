@@ -396,4 +396,9 @@ function food_status($status){
         }else{
             return "<div class='label label-danger'>Rejected</div>";
         }
-    }
+}
+
+function get_session(){
+    $session = json_decode(session('company'));
+    return $session;
+}

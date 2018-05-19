@@ -15,7 +15,22 @@ class PaymentDetail
      */
     public function handle($request, Closure $next)
     {
-        if(auth()->user()->account_name){
+        if(auth()->check()){
+            if(auth()->user()->type == 0){
+                if(auth()->user()->account_name)
+                    return $next($request);
+                else
+                    return redirect()->to('/registration');
+            }elseif(auth()->user()->type == 1 || auth()->user()->type == 2){
+                if(auth()->user()->companies->count() > 0) {
+                    if(!session('company')) {
+                        session(['company' => json_encode(auth()->user()->companies[0])]);
+                    }
+                    return $next($request);
+                }else {
+                    return redirect()->to('/registration');
+                }
+            }
             return $next($request);
         }else{
             return redirect()->to('/registration');

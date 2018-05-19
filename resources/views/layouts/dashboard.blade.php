@@ -28,14 +28,14 @@
 
             <!-- Scrollable -->
             <div class="c-sidebar__body">
-                <span class="c-sidebar__title">Dashboards</span>
+                <span class="c-sidebar__title">Dashboard</span>
                 <ul class="c-sidebar__list">
                     <li>
                         <a class="c-sidebar__link" href="{{ url('/home') }}">
                             <i class="c-sidebar__icon feather icon-home"></i>Dashboard
                         </a>
                     </li>
-                    @if(auth()->user()->type == "1")
+                    @if(auth()->user()->type > 0)
                     <li>
                         <a class="c-sidebar__link " href="{{ url('/truck') }}">
                             <i class="c-sidebar__icon feather icon-anchor"></i>Truck(s)
@@ -53,7 +53,7 @@
                             </a>
                         </li>
                         @endif
-                    @if(auth()->user()->type == "1")
+                    @if(auth()->user()->type > 0)
                         <li>
                             <a class="c-sidebar__link" href="{{ url('/driver') }}">
                                 <i class="c-sidebar__icon feather icon-users"></i>Driver(s)
@@ -71,8 +71,13 @@
                             </a>
                         </li>
                     @endif
-
-
+                    @if(auth()->user()->type > 1)
+                    <li>
+                        <a class="c-sidebar__link" href="{{ url('/companies') }}">
+                            <i class="c-sidebar__icon feather icon-tag"></i>Companies
+                        </a>
+                    </li>
+                    @endif
                     <li>
                         <a class="c-sidebar__link" href="{{ url('/account/settings') }}">
                             <i class="c-sidebar__icon feather icon-settings"></i>Account Settings
@@ -97,13 +102,40 @@
             </button>
 
             <h2 class="c-navbar__title">Account Type: @if(auth()->user()->type == "1")
-                Company({{ auth()->user()->company_name }})
+                Company
+                      @elseif(auth()->user()->type == "2")
+                          Affiliate Manager
             @else
-Individual
+                Individual
+
                 @endif
             </h2>
+            @if(auth()->user()->type > 0)
+            <div style="margin-left: -10px;" class="c-dropdown dropdown">
+                <a href="#" class="c-btn c-btn--info has-icon dropdown-toggle" id="dropdownMenuToggleModal" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                    <?php
+                    $message = json_decode(session('company'));
+                    echo $message->name;
+                    ?> <i class="c-btn__icon feather icon-chevron-down"></i>
+                </a>
 
-            <div class="c-dropdown dropdown">
+                <div style="position: absolute;
+    transform: translate3d(2px, 39px, 0px);
+    top: 0px;
+    left: -92px;
+    will-change: transform;
+    width: 250px;
+" class="c-dropdown__menu dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuToggleModal">
+                   @foreach(auth()->user()->companies as $company)
+                    <a class="c-dropdown__item dropdown-item" href="{{ url('select/session/'.encrypt_decrypt('encrypt',$company->id)) }}">{{ $company->name }} @if($company->id == $message->id)
+                            <span style="color: red;">(Selected)</span>
+                    @endif</a>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+            <div class="c-dropdown dropdown" style="margin-left: 50px;">
+
                 <div class="c-avatar c-avatar--xsmall dropdown-toggle" id="dropdownMenuAvatar" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
                     <img class="c-avatar__img" src="http://via.placeholder.com/72" alt="{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}">
                 </div>

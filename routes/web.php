@@ -12,6 +12,8 @@
 */
 
 Route::get('/', "PagesController@index");
+Route::get('/api/doc', "PagesController@api_doc");
+Route::get('/select/session/{id}', "PagesController@select_session");
 
 Auth::routes();
 
@@ -21,6 +23,10 @@ Route::group(['middleware' => 'payment_detail'],function(){
     Route::get('/driver', 'HomeController@driver')->name('driver');
 
     Route::get('/add/driver', 'HomeController@add_driver')->name('add_driver');
+    Route::get('/companies', 'HomeController@companies')->name('companies');
+    Route::get('/add/company', 'HomeController@add_company')->name('add_company');
+    Route::post('/add/company', 'HomeController@p_add_company')->name('p_add_company');
+    Route::post('/company/delete/{id}', 'HomeController@company_delete')->name('company_delete');
     Route::post('/add/driver', 'HomeController@p_add_driver')->name('p_add_driver');
     Route::get('/add/truck', 'HomeController@add_truck')->name('add_truck');
     Route::get('/truck/{id}', 'HomeController@view_truck')->name('add_truck');

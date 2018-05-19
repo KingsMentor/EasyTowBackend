@@ -3,7 +3,7 @@
 @section('content')
 
         <div class="row">
-            <div class="col-md-6 @if(auth()->user()->type == "1")
+            <div class="col-md-6 @if(auth()->user()->type > 0)
                     col-xl-3
                     @else
                     col-xl-6
@@ -17,7 +17,7 @@
                     <h1>N0.00</h1>
                 </div>
             </div>
-@if(auth()->user()->type == "1")
+@if(auth()->user()->type > 0)
             <div class="col-md-6 col-xl-3">
                 <div class="c-card">
                 <span class="c-icon c-icon--danger u-mb-small">
@@ -40,7 +40,7 @@
                 </div>
             </div>
 @endif
-            <div class="col-md-6  @if(auth()->user()->type == "1")
+            <div class="col-md-6  @if(auth()->user()->type > 0)
                     col-xl-3
                     @else
                     col-xl-6

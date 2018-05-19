@@ -27,10 +27,14 @@ class User extends Authenticatable
     ];
 
     public function trucks(){
-        return $this->hasMany(Vehicle::class,'agent_id','id');
+        return $this->hasMany(Vehicle::class,'user_id','id');
     }
 
     public function drivers(){
-        return $this->hasMany(Driver::class,'agent_id','id');
+        return $this->hasMany(Driver::class,'user_id','id');
+    }
+
+    public function companies(){
+        return $this->hasMany(Company::class,'user_id','id');
     }
 }
