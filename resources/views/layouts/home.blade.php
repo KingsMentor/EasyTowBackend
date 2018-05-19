@@ -122,7 +122,7 @@ closest Tow Vehicle based on the user’s current position and vehicle to be tow
                     <div class="column width-6 offset-3">
                         <div class="widget center left-on-mobile">
                             <div class="footer-logo">
-                                <a href="index.html"><img src="{{ url('images/logo.png') }}" alt="Faulkner Logo" /></a>
+                                <a href="{{ url('/') }}"><img src="{{ url('images/logo.png') }}" alt="Faulkner Logo" /></a>
                             </div>
                         </div>
                     </div>

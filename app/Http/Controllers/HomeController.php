@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Bank;
+use App\Company;
 use App\Driver;
 use App\User;
 use App\Vehicle;
@@ -26,29 +28,67 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $drivers = Driver::where('agent_id',auth()->user()->id)->count();
-        $trucks = Vehicle::where('agent_id',auth()->user()->id)->count();
+        $drivers = Driver::where('user_id',auth()->user()->id);
+        $trucks = Vehicle::where('user_id',auth()->user()->id);
+
+        if(auth()->user()->type == "0"){
+            $drivers = $drivers->count();
+            $trucks = $trucks->count();
+        }else{
+            $company = get_session();
+            $drivers = $drivers->where('company_id',$company->id)->count();
+            $trucks = $trucks->where('company_id',$company->id)->count();
+        }
         return view('index')->with(compact('drivers','trucks'));
     }
 
     public function registration()
     {
-        return view('home');
+        $banks = Bank::pluck('name','id')->toArray();
+        return view('home')->with(compact('banks'));
     }
 
     public function p_registration(Request $request){
         $request_data = $request->all();
         unset($request_data['_token']);
-        User::where('id',auth()->user()->id)->update($request_data);
 
+        //time to sort
+        $data = [
+            "first_name" => $request_data['first_name'],
+            "last_name" => $request_data['last_name'],
+              "phone_no" => $request_data['phone_no'],
+              "type" =>  $request_data['type']
+        ];
+
+
+        //If a company add the relationship
+        if($request_data['type'] == 1 || $request_data['type'] == 2){
+            $company_data = [
+                'name' => $request_data['company_name'],
+                'address' => $request_data['address'],
+                'account_name' => $request_data['account_name'],
+                'account_no' => $request_data['account_no'],
+                'bank_id' => $request_data['bank_id'],
+                'user_id' => auth()->user()->id
+            ];
+        }else{
+            $data = $request_data;
+            unset($data['company_name']);
+        }
+
+
+        User::where('id',auth()->user()->id)->update($data);
+        if($request_data['type'] == 1 || $request_data['type'] == 2) {
+            Company::create($company_data);
+        }
         return redirect()->to('/home');
     }
 
     public function truck(){
-        if(auth()->user()->type != "1"){
+        if(auth()->user()->type < 1){
             return back();
         }
-        $trucks = Vehicle::where('agent_id',auth()->user()->id)->paginate(25);
+        $trucks = Vehicle::where('user_id',auth()->user()->id)->where('company_id',get_session()->id)->paginate(25);
 
         return view('home.truck')->with(compact('trucks'));
     }
@@ -58,10 +98,10 @@ class HomeController extends Controller
     }
 
     public function p_add_truck(Request $request){
-        if(auth()->user()->type != "1"){
+        if(auth()->user()->type < 1){
             if(auth()->user()->trucks->count() > 0){
                 session()->flash('alert-info',"You cannot add more than one truck");
-return back();
+                return back();
             }
         }
         $this->validate($request,[
@@ -73,7 +113,10 @@ return back();
 
         $data = $request->all();
         unset($data["_token"]);
-        $data['agent_id'] = auth()->user()->id;
+        $data['user_id'] = auth()->user()->id;
+        if(auth()->user()->type != "0") {
+            $data['company_id'] = get_session()->id;
+        }
 
         $vehicle = Vehicle::create($data);
 
@@ -86,7 +129,11 @@ return back();
     public function view_truck($id){
         $id = encrypt_decrypt('decrypt',$id);
         $truck = Vehicle::where('id',$id)->first();
-        $drivers = Driver::where('agent_id',auth()->user()->id)->pluck('name','id')->toArray();
+        if(auth()->user()->type == "0") {
+            $drivers = Driver::where('user_id',auth()->user()->id)->pluck('name','id')->toArray();
+        }else{
+            $drivers = Driver::where('user_id',auth()->user()->id)->where('company_id',get_session()->id)->pluck('name','id')->toArray();
+        }
         return view('home.v_truck')->with(compact('truck','drivers'));
     }
 
@@ -98,15 +145,19 @@ return back();
     }
 
     public function driver(){
-        if(auth()->user()->type != "1"){
+        if(auth()->user()->type < 1){
             return back();
         }
-        $drivers = Driver::where('agent_id',auth()->user()->id)->paginate(25);
+        $drivers = Driver::where('user_id',auth()->user()->id)->where('company_id',get_session()->id)->paginate(25);
         return view('home.driver')->with(compact('drivers'));
     }
 
     public function add_driver(){
-        $trucks = Vehicle::where('agent_id',auth()->user()->id)->pluck('manufacturer','id')->toArray();
+        if(auth()->user()->type == "0") {
+            $trucks = Vehicle::where('user_id',auth()->user()->id)->pluck('manufacturer','id')->toArray();
+        }else{
+            $trucks = Vehicle::where('user_id',auth()->user()->id)->where('company_id',get_session()->id)->pluck('manufacturer','id')->toArray();
+        }
         return view('home.add_driver')->with(compact('trucks'));
     }
 
@@ -120,7 +171,8 @@ return back();
         $this->validate($request, [
             'name' => 'required',
             'profile_pic' => 'required|image|mimes:jpg,png,jpeg',
-            'license' => 'required|mimes:pdf,docx,doc'
+            'license' => 'required|mimes:pdf,docx,doc',
+            'phone_no' => 'required'
         ]);
 
         $photoName = time() . '.' . $request->profile_pic->getClientOriginalExtension();
@@ -132,10 +184,13 @@ return back();
 
         $request_data['profile_pic'] = '/storage/'.$photoName;
         $request_data['license'] = '/storage/'.$photoName2;
-        $request_data['agent_id'] = auth()->user()->id;
+        $request_data['user_id'] = auth()->user()->id;
         $truck_id = $request_data['truck_id'];
         unset($request_data['_token']);
         unset($request_data['truck_id']);
+        if(auth()->user()->type != "0") {
+            $request_data['company_id'] = get_session()->id;
+        }
         $driver = Driver::create($request_data);
 
         Vehicle::where('id',$truck_id)->update([
@@ -174,6 +229,31 @@ return back();
         unset($request_data['_token']);
         User::where('id',auth()->user()->id)->update($request_data);
         session()->flash('alert-success',"Profile has been updated");
+        return back();
+    }
+
+    public function companies(){
+        $companies = Company::where('user_id',auth()->user()->id)->paginate(25);
+        return view('home.company')->with(compact('companies'));
+    }
+
+    public function add_company(){
+        $banks = Bank::pluck('name','id')->toArray();
+
+        return view('home.add_company')->with(compact('banks'));
+    }
+
+    public function p_add_company(Request $request){
+       $request_data = $request->all();
+       $request_data['user_id'] = auth()->user()->id;
+       Company::create($request_data);
+       session()->flash('alert-success',"Company has been added.");
+       return redirect()->to('/companies');
+    }
+
+    public function company_delete($id){
+        $company = Company::where('id',$id)->delete();
+        session()->flash('alert-success',"Company has been deleted");
         return back();
     }
 }

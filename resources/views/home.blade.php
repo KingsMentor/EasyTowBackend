@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row u-justify-center">
             <div class="col-lg-6 u-text-center">
-                <h3 class="u-mb-small">Hello {{ auth()->user()->first_name }} {{ auth()->user()->last_name }}, Welcome to EasyTow :)</h3>
+                <h3 class="u-mb-small">Hello {{ auth()->user()->first_name }} {{ auth()->user()->last_name }}, Welcome to EasyTow 🙂</h3>
                 <p class="u-text-large u-mb-large">Update Profile to help us understand your needs better.</p>
             </div>
         </div>
@@ -36,6 +36,7 @@
                                 <option>Select registration Type</option>
                                <option value="0">Individual</option>
                                <option value="1">Company</option>
+                               <option value="2">Affiliate Manager</option>
                            </select>
                        </p>
                        <p style="margin-bottom: 10px;display: none" id="company_form"><input placeholder="Company name..."   value="Company Name" name="company_name"></p>
@@ -53,11 +54,14 @@
                        <label>Address</label>
                        <p style="margin-bottom: 10px"><input placeholder="Address" value="{{ auth()->user()->address }}" class="form-control" name="address"></p>
 
+                       <label>Bank Name</label>
+                       <p style="margin-bottom: 10px">
+                           {!! Form::select('bank_id',$banks, '',['class' => 'form-control','style'=>'width: 100%;height:35px;']) !!}
+                       </p>
+
                        <label>Account Name</label>
                        <p style="margin-bottom: 10px"><input placeholder="Account Name..." value="{{ auth()->user()->account_name }}" class="form-control" name="account_name"></p>
 
-                       <label>Bank Name</label>
-                       <p style="margin-bottom: 10px"><input placeholder="Bank Name" value="{{ auth()->user()->bank_name }}" name="bank_name"></p>
 
                        <label>Account No</label>
                        <p style="margin-bottom: 10px"><input placeholder="Account Name..." value="{{ auth()->user()->account_no }}" name="account_no"></p>
@@ -66,7 +70,9 @@
                         <br/>
                    </div>
 
+
                    <div style="overflow:auto;">
+
                        <div style="float:right;">
                            <button type="button" id="prevBtn" class="c-btn c-btn--success u-mb-xsmall" onclick="nextPrev(-1)">Previous</button>
                            <button type="button" id="nextBtn" class="c-btn c-btn--success u-mb-xsmall" onclick="nextPrev(1)">Next</button>
