@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <title>Swagger UI</title>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="./swagger-ui.css" >
+  <link rel="stylesheet" type="text/css" href="/swagger/swagger-ui.css" >
   <link rel="icon" type="image/png" href="../public/favicon-32x32.png" sizes="32x32" />
   <link rel="icon" type="image/png" href="../public/favicon-16x16.png" sizes="16x16" />
   <style>
@@ -67,15 +67,15 @@
 
 <div id="swagger-ui"></div>
 
-<script src="./swagger-ui-bundle.js"> </script>
-<script src="./swagger-ui-standalone-preset.js"> </script>
+<script src="/swagger/swagger-ui-bundle.js"> </script>
+<script src="/swagger/swagger-ui-standalone-preset.js"> </script>
 <script>
 window.onload = function() {
     var url = window.location.search.match(/url=([^&]+)/);
     if (url && url.length > 1) {
         url = decodeURIComponent(url[1]);
     } else {
-        url = "http://<?php echo $_SERVER['SERVER_NAME'];?>/api/doc";
+        url = "http://localhost:3000/api/doc";
     }
   // Build a system
   const ui = SwaggerUIBundle({

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Address;
+use App\Driver;
 use App\Transformers\AddressTransformer;
+use App\Transformers\DriverTransformer;
 use App\Transformers\UserTransformer;
 use App\User;
 use Illuminate\Http\Request;
@@ -21,7 +23,7 @@ class APIAuthenticateController extends ApiBaseController
     /**
      * @SWG\Swagger(
      *     schemes={"http"},
-     *     host="easytow.coincedar.com",
+     *     host="localhost:3000",
      *     basePath="/",
      *     @SWG\Info(
      *         version="1.0.0",
@@ -41,7 +43,6 @@ class APIAuthenticateController extends ApiBaseController
         parent::__construct();
     }
 
-
     public function logout(Request $request)
     {
         $this->validate($request, [
@@ -56,8 +57,8 @@ class APIAuthenticateController extends ApiBaseController
     /**
      * @SWG\Post(
      *   path="/api/auth/login",
+     *     tags={"user"},
      *   summary="Logs the user in and sends JWT token to be sent with every request with the user's detail",
-     *      tags={"driver"},
      *   @SWG\Response(
      *     response=200,
      *     description="authorization token with user's data"
@@ -93,7 +94,7 @@ class APIAuthenticateController extends ApiBaseController
 
 
             // Attempt to verify the credentials and create a token for the user
-            if (!$token = JWTAuth::attempt($this->getCredentials($request))) {
+            if (!$token = JWTAuth::attempt(['email' => $request->email,'password' => $request->password,'type' => "4"])) {
                 return $this->onUnauthorized();
             }
 
@@ -122,8 +123,15 @@ class APIAuthenticateController extends ApiBaseController
      *     description="JWT token to be sent with every request with the user's detail"
      *   ),
      *   @SWG\Parameter(
-     *     name="name",
-     *     description="User's full name",
+     *     name="first_name",
+     *     description="User's first name",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * ),
+     *    @SWG\Parameter(
+     *     name="last_name",
+     *     description="User's first name",
      *     required=true,
      *     in= "formData",
      *     type="string"
@@ -151,7 +159,8 @@ class APIAuthenticateController extends ApiBaseController
             $this->validate($request, [
                 'email' => 'required|email|unique:users|max:255',
                 'password' => 'required',
-                'name' => 'required',
+                'first_name' => 'required',
+                'last_name' => 'required',
 
             ]);
 
@@ -561,134 +570,254 @@ class APIAuthenticateController extends ApiBaseController
 
     /**
      * @SWG\Post(
-     *   path="/api/auth/add/address",
-     *   summary="send password reset link to email",
-     *   tags={"user"},
+     *   path="/api/driver/login",
+     *     tags={"driver"},
+     *   summary="Logs the user in and sends JWT token to be sent with every request with the user's detail",
      *   @SWG\Response(
      *     response=200,
-     *     description="returns status: true if valid otherwise false and message"
+     *     description="authorization token with user's data"
      *   ),
      *   @SWG\Parameter(
-     *     name="address",
-     *     description="address",
+     *     name="email",
+     *     description="User's email address",
      *     required=true,
-     *     in= "query",
+     *     in= "formData",
      *     type="string"
      * ),
-     *    @SWG\Parameter(
-     *     name="phone",
-     *     description="Phone",
+     *     @SWG\Parameter(
+     *     name="password",
+     *     description="User's password",
      *     required=true,
-     *     in= "query",
-     *     type="string"
-     * ),
-     *    @SWG\Parameter(
-     *     name="city_id",
-     *     description="city",
-     *     required=true,
-     *     in= "query",
-     *     type="string"
-     * ),
-     *    @SWG\Parameter(
-     *     name="token",
-     *     description="authorization token",
-     *     required=true,
-     *     in= "query",
+     *     in="formData",
      *     type="string"
      * )
      * )
      */
-
-    public function add_address(Request $request){
+    public function driverLogin(Request $request)
+    {
         $app_const = $this->APP_CONSTANT;
         try {
-            if (!$user = JWTAuth::parseToken()->authenticate()) {
-                return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email|max:255',
+                'password' => 'required',
+            ]);
+
+
+            if ($validator->fails())
+                throw new ValidationException($validator->errors());
+
+
+            // Attempt to verify the credentials and create a token for the user
+            if (!$token = auth()->guard('drivers')->attempt(['email' => $request->email,'password' => $request->password])) {
+                return $this->onUnauthorized();
             }
-            $request_data = $request->all();
 
-        $this->validate($request, [
-            'address' => 'required',
-            'phone' => 'required',
-            'city_id' => 'required',
-        ]);
-            $request_data['user_id'] = $user->id;
+            // All good so return the token
 
-            $address = Address::create($request_data);
-
-
-            $transformer = new AddressTransformer();
-
-            return validResponse($app_const['ADDRESS_UPDATED'], $transformer->transform($address), $request);
+            $app_const = $this->APP_CONSTANT;
+            $transformer = new DriverTransformer();
+            $response = [
+                'message' => "Login Successful",
+                'data' => [
+                    'token' => auth()->guard('drivers')->user()->api_key,
+                    'user' => $transformer->transform(auth()->guard('drivers')->user())
+                ],
+                'status' => true
+            ];
 
 
-        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-            return genericResponse($app_const["TOKEN_INVALIDATED"], '401', $request);
-        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-            return genericResponse($app_const['TOKEN_INVALID'], '401', $request);
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return genericResponse($app_const['EXCEPTION'], "500", $request);
+            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+            return new JsonResponse($response);
+
+        } catch (JWTException $e) {
+            // Something went wrong whilst attempting to encode the token
+            return $this->onJwtGenerationError();
+
+        } catch (ValidationException $e) {
+            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
         } catch (\Exception $e) {
-            return genericResponse($app_const['EXCEPTION'], $app_const['EXCEPTION_CODE'], $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
         }
+
     }
 
     /**
      * @SWG\Post(
-     *   path="/api/auth/remove/address",
-     *   summary="send password reset link to email",
-     *   tags={"user"},
+     *   path="/api/driver/sign-up",
+     *   summary="Register a new user",
+     *      tags={"driver"},
      *   @SWG\Response(
      *     response=200,
-     *     description="returns status: true if valid otherwise false and message"
+     *     description="JWT token to be sent with every request with the user's detail"
      *   ),
      *   @SWG\Parameter(
-     *     name="address_id",
-     *     description="address",
+     *     name="name",
+     *     description="User's full name",
      *     required=true,
-     *     in= "query",
+     *     in= "formData",
      *     type="string"
      * ),
-     *    @SWG\Parameter(
-     *     name="token",
-     *     description="authorization token",
+     *   @SWG\Parameter(
+     *     name="email",
+     *     description="User's email address",
      *     required=true,
-     *     in= "query",
+     *     in= "formData",
+     *     type="string"
+     * ),
+     *     @SWG\Parameter(
+     *     name="password",
+     *     description="User's password",
+     *     required=true,
+     *     in="formData",
+     *     type="string"
+     * ),
+     *  @SWG\Parameter(
+     *     name="phone_no",
+     *     description="User's phoneno",
+     *     required=true,
+     *     in="formData",
      *     type="string"
      * )
      * )
      */
 
-    public function remove_address(Request $request){
-        $app_const = $this->APP_CONSTANT;
-        try {
-            if (!$user = JWTAuth::parseToken()->authenticate()) {
-                return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
-            }
-            $request_data = $request->all();
-
-            $this->validate($request, [
-                'address_id' => 'required'
-            ]);
-
-            $address = Address::where('id',$request->address_id)->delete();
-
-
-            return validResponse($app_const['ADDRESS_DELETED'], [], $request);
-
-
-        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-            return genericResponse($app_const["TOKEN_INVALIDATED"], '401', $request);
-        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-            return genericResponse($app_const['TOKEN_INVALID'], '401', $request);
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return genericResponse($app_const['EXCEPTION'], "500", $request);
-        } catch (\Exception $e) {
-            return genericResponse($app_const['EXCEPTION'], $app_const['EXCEPTION_CODE'], $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+    function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
+        return $randomString;
     }
 
+    public function driver_sign_up(Request $request)
+    {
+        $app_const = $this->APP_CONSTANT;
+        try {
+            $this->validate($request, [
+                'email' => 'required|email|unique:users|max:255',
+                'password' => 'required',
+                'name' => 'required'
+            ]);
+
+            $requestArray = $request->all();
+
+            $requestArray['password'] = \app('hash')->make($request->password);
+
+            $requestArray['api_key'] = $this->generateRandomString(50);
+
+            $driver = Driver::create($requestArray);
 
 
+            auth()->guard('drivers')->loginUsingId($driver->id);
+
+            // All good so return the token
+
+            $app_const = $this->APP_CONSTANT;
+            $transformer = new DriverTransformer();
+            $response = [
+                'message' => "Signup successful",
+                'data' => [
+                    'token' => auth()->guard('drivers')->user()->api_key,
+                    'user' => $transformer->transform(auth()->guard('drivers')->user())
+                ],
+                'status' => true
+            ];
+
+
+        } catch (ValidationException $e) {
+            return genericResponse($app_const['REG_VALIDATION_EXCEPTION'], '404', $request);
+
+        } catch (JWTException $e) {
+            // Something went wrong whilst attempting to encode the token
+            return genericResponse($app_const["TOKEN_CREATION_ERR"], "404", $request);
+
+
+        }
+
+        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+        return new JsonResponse($response);
+    }
+
+    /**
+     * @SWG\Post(
+     *   path="/api/update/gps",
+     *   summary="Register gps location",
+     *      tags={"driver"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="JWT token to be sent with every request with the user's detail"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="token",
+     *     description="token",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * ),
+     *   @SWG\Parameter(
+     *     name="gps_lat",
+     *     description="gps_lat",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * ),
+     *     @SWG\Parameter(
+     *     name="gps_lon",
+     *     description="gps_lat",
+     *     required=true,
+     *     in="formData",
+     *     type="string"
+     * )
+     * )
+     */
+    public function updateGPS(Request $request)
+    {
+        $app_const = $this->APP_CONSTANT;
+
+
+        try {
+            $this->validate($request, [
+                'token' => 'required',
+                'gps_lat' => 'required',
+                'gps_lon' => 'required',
+            ]);
+
+            Driver::where('api_key',$request->token)->update([
+                'gps_lat' => $request->gps_lat,
+                'gps_lon' => $request->gps_lon
+            ]);
+            $driver = Driver::where('api_key',$request->token)->first();
+
+            $app_const = $this->APP_CONSTANT;
+            $transformer = new DriverTransformer();
+            $response = [
+                'message' => "Login Successful",
+                'data' => [
+                    'token' => $request->api_key,
+                    'user' => $transformer->transform($driver)
+                ],
+                'status' => true
+            ];
+
+
+            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+            return new JsonResponse($response);
+
+        } catch (JWTException $e) {
+            // Something went wrong whilst attempting to encode the token
+            return $this->onJwtGenerationError();
+
+        } catch (ValidationException $e) {
+            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
+        } catch (\Exception $e) {
+            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+        }
+
+
+        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+        return new JsonResponse($response);
+    }
 
 }

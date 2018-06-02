@@ -13,6 +13,43 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+
+$api = app(Dingo\Api\Routing\Router::class);
+
+
+$api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
+
+    $api->patch('/auth/refresh', [
+        'uses' => 'APIAuthenticateController@patchRefresh',
+    ]);
+
+    $api->post('auth/login', 'APIAuthenticateController@postLogin');
+    $api->post('auth/sign-up', 'APIAuthenticateController@sign_up');
+    $api->post('auth/logout', 'APIAuthenticateController@logout');
+    $api->post('driver/login', 'APIAuthenticateController@driverLogin');
+    $api->post('driver/sign-up', 'APIAuthenticateController@driver_sign_up');
+    $api->post('update/gps', 'APIAuthenticateController@updateGPS');
+
+    $api->post('transactions', 'APIAuthenticateController@transaction');
+
+    $api->post('auth/send-password-reset-link', 'APIAuthenticateController@send_password_reset_link');
+
+
+    $api->group(['middleware' => 'api.aut'], function ($api) {
+        $api->post('/auth/change-password', 'APIAuthenticateController@change_password');
+        $api->post('/auth/update/profile', 'APIAuthenticateController@update_profile');
+        $api->post('/auth/add/address', 'APIAuthenticateController@add_address');
+        $api->post('/auth/remove/address', 'APIAuthenticateController@remove_address');
+
+        $api->delete('/auth/invalidate', [
+            'uses' => 'APIAuthenticateController@deleteInvalidate',
+        ]);
+        $api->get('/auth/user', [
+            'uses' => 'APIAuthenticateController@getUser',
+        ]);
+        $api->get('/my_orders', 'APIOthersController@my_orders');
+
+    });
+
+    $api->post('/jwt/refresh', '\Paulvl\JWTGuard\Http\Controllers\Auth\LoginController@refresh')->name('jwt.refresh');
 });
