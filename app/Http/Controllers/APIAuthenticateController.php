@@ -23,7 +23,7 @@ class APIAuthenticateController extends ApiBaseController
     /**
      * @SWG\Swagger(
      *     schemes={"http"},
-     *     host="localhost:3000",
+     *     host="easytow.coincedar.com/",
      *     basePath="/",
      *     @SWG\Info(
      *         version="1.0.0",
