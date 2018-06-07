@@ -29,6 +29,7 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
     $api->post('driver/login', 'APIAuthenticateController@driverLogin');
     $api->post('driver/sign-up', 'APIAuthenticateController@driver_sign_up');
     $api->post('update/gps', 'APIAuthenticateController@updateGPS');
+    $api->post('find/tow', 'APIAuthenticateController@find_tow');
 
     $api->post('transactions', 'APIAuthenticateController@transaction');
 

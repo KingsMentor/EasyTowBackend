@@ -785,8 +785,8 @@ class APIAuthenticateController extends ApiBaseController
             ]);
 
             Driver::where('api_key',$request->token)->update([
-                'gps_lat' => $request->gps_lat,
-                'gps_lon' => $request->gps_lon
+                'latitude' => $request->gps_lat,
+                'longitude' => $request->gps_lon
             ]);
             $driver = Driver::where('api_key',$request->token)->first();
 
@@ -820,4 +820,90 @@ class APIAuthenticateController extends ApiBaseController
         return new JsonResponse($response);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/api/find/tow",
+     *   summary="Register gps location",
+     *      tags={"user"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="find a tow within a location"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="token",
+     *     description="token",
+     *     required=true,
+     *     in= "query",
+     *     type="string"
+     * ),
+     *   @SWG\Parameter(
+     *     name="gps_lat",
+     *     description="gps_lat",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * ),
+     *     @SWG\Parameter(
+     *     name="gps_lon",
+     *     description="gps_lat",
+     *     required=true,
+     *     in="formData",
+     *     type="string"
+     * )
+     * )
+     */
+
+    public function find_tow(Request $request){
+        $app_const = $this->APP_CONSTANT;
+
+
+        try {
+            $this->validate($request, [
+                'gps_lat' => 'required',
+                'gps_lon' => 'required',
+                'radius' => 'required'
+            ]);
+
+            $drivers = Driver::geofence($request->gps_lat, $request->gps_lat, $request->radius, $request->radius);
+
+            $all = $drivers->get();
+            $transformer = new DriverTransformer();
+            $drivers_ = [];
+            foreach($all as $driver){
+                $drivers_[] = $transformer->transform($driver);
+            }
+
+
+            $app_const = $this->APP_CONSTANT;
+            $response = [
+                'message' => "Login Successful",
+                'data' => [
+                    'token' => $request->api_key,
+                    'driver' => $drivers_
+                ],
+                'status' => true
+            ];
+
+
+            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+            return new JsonResponse($response);
+
+        } catch (JWTException $e) {
+            // Something went wrong whilst attempting to encode the token
+            return $this->onJwtGenerationError();
+
+        } catch (ValidationException $e) {
+            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
+        } catch (\Exception $e) {
+            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+        }
+
+
+        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+
+        return new JsonResponse($response);
+
+    }
+
+    
 }

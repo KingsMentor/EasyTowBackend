@@ -30,8 +30,8 @@ class DriverTransformer extends TransformerAbstract
             'email' => $user->email,
             'profile_pic' => $user->profile_pic,
             'phone_no' => $user->phone_no,
-            'gps_lat' => $user->gps_lat,
-            'gps_lon' => $user->gps_lon
+            'gps_lat' => $user->latitude,
+            'gps_lon' => $user->longitude
         ];
     }
 
