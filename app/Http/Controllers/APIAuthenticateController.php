@@ -139,7 +139,7 @@ class APIAuthenticateController extends ApiBaseController
      *   @SWG\Parameter(
      *     name="email",
      *     description="User's email address",
-     *     required=true,
+     *     required=false,
      *     in= "formData",
      *     type="string"
      * ),
@@ -157,17 +157,16 @@ class APIAuthenticateController extends ApiBaseController
         $app_const = $this->APP_CONSTANT;
         try {
             $this->validate($request, [
-                'email' => 'required|email|unique:users|max:255',
-                'password' => 'required',
+                'email' => 'email|unique:users|max:255',
                 'first_name' => 'required',
                 'last_name' => 'required',
-
+                'phone_no' => 'unique:users'
             ]);
 
             $requestArray = $request->all();
-
-            $requestArray['password'] = \app('hash')->make($request->password);
-
+            if(isset($requestArray['password'])) {
+                $requestArray['password'] = \app('hash')->make($request->password);
+            }
 
             User::create($requestArray);
 
@@ -494,8 +493,14 @@ class APIAuthenticateController extends ApiBaseController
      *     description="returns status: true if valid otherwise false and message"
      *   ),
      *      @SWG\Parameter(
-     *     name="name",
-     *     description="user's name",
+     *     name="first_name",
+     *     description="first name",
+     *     required=true,
+     *     in= "query",
+     *     type="string"
+     * ),@SWG\Parameter(
+     *     name="last_name",
+     *     description="last name",
      *     required=true,
      *     in= "query",
      *     type="string"
@@ -905,5 +910,48 @@ class APIAuthenticateController extends ApiBaseController
 
     }
 
+
+    /**
+     * @SWG\Post(
+     *   path="/api/delete/account",
+     *   summary="Delete account",
+     *   tags={"user"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="returns status: true if valid otherwise false and message"
+     *   ),
+     *    @SWG\Parameter(
+     *     name="token",
+     *     description="authorization token",
+     *     required=true,
+     *     in= "query",
+     *     type="string"
+     * )
+     * )
+     */
+    public function deleteUser(Request $request){
+        $app_const = $this->APP_CONSTANT;
+        try {
+            if (!$user = JWTAuth::parseToken()->authenticate()) {
+                return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
+            }
+
+
+            User::where('id', $user->id)->delete();
+
+
+            return validResponse('ADDRESS DELETED', [], $request);
+
+
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return genericResponse($app_const["TOKEN_INVALIDATED"], '401', $request);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return genericResponse($app_const['TOKEN_INVALID'], '401', $request);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return genericResponse($app_const['EXCEPTION'], "500", $request);
+        } catch (\Exception $e) {
+            return genericResponse($app_const['EXCEPTION'], $app_const['EXCEPTION_CODE'], $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+        }
+    }
     
 }

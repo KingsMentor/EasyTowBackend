@@ -34,7 +34,8 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
     $api->post('transactions', 'APIAuthenticateController@transaction');
 
     $api->post('auth/send-password-reset-link', 'APIAuthenticateController@send_password_reset_link');
-
+    $api->post('/check/phone', 'APIOthersController@checkPhoneNo');
+    $api->post('/check/email', 'APIOthersController@checkEmail');
 
     $api->group(['middleware' => 'api.aut'], function ($api) {
         $api->post('/auth/change-password', 'APIAuthenticateController@change_password');
@@ -48,7 +49,12 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
         $api->get('/auth/user', [
             'uses' => 'APIAuthenticateController@getUser',
         ]);
-        $api->get('/my_orders', 'APIOthersController@my_orders');
+
+        $api->post('/delete/account', 'APIAuthenticateController@deleteUser');
+
+        $api->get('/update/gcm', 'APIOthersController@updateGCMIDS');
+
+
 
     });
 
