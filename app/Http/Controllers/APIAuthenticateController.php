@@ -146,7 +146,14 @@ class APIAuthenticateController extends ApiBaseController
      *     @SWG\Parameter(
      *     name="password",
      *     description="User's password",
-     *     required=true,
+     *     required=false,
+     *     in="formData",
+     *     type="string"
+     * ),
+     * @SWG\Parameter(
+     *     name="phone_no",
+     *     description="User's phone number",
+     *     required=false,
      *     in="formData",
      *     type="string"
      * )
@@ -157,16 +164,32 @@ class APIAuthenticateController extends ApiBaseController
         $app_const = $this->APP_CONSTANT;
         try {
             $this->validate($request, [
-                'email' => 'email|unique:users|max:255',
+                'email' => 'email|max:255',
                 'first_name' => 'required',
                 'last_name' => 'required',
-                'phone_no' => 'unique:users'
             ]);
 
             $requestArray = $request->all();
             if(isset($requestArray['password'])) {
                 $requestArray['password'] = \app('hash')->make($request->password);
             }
+
+            //check if phone exist
+            if(isset($requestArray['phone_no'])) {
+                $user = User::where('phone_no',$requestArray['phone_no'])->where('type','4')->first();
+                if($user){
+                    return genericResponse("Phone Number already exist", '404', $request);
+                }
+            }
+
+            if(isset($requestArray['email'])) {
+                $user = User::where('email',$requestArray['email'])->where('type','4')->first();
+                if($user){
+                    return genericResponse("Email already exist", '404', $request);
+                }
+            }
+
+            $requestArray['type'] = "4";
 
             User::create($requestArray);
 
