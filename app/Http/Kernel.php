@@ -4,7 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\PaymentDetail;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
-
+use Tymon\JWTAuth\Middleware\GetUserFromToken;
 class Kernel extends HttpKernel
 {
     /**
@@ -60,6 +60,7 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'payment_detail' => PaymentDetail::class
+        'payment_detail' => PaymentDetail::class,
+        'api.aut' =>  GetUserFromToken::class
     ];
 }

@@ -52,7 +52,7 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
 
         $api->post('/delete/account', 'APIAuthenticateController@deleteUser');
 
-        $api->get('/update/gcm', 'APIOthersController@updateGCMIDS');
+        $api->post('/update/gcm', 'APIOthersController@updateGCMIDS');
 
 
 
