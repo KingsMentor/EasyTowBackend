@@ -156,6 +156,13 @@ class APIAuthenticateController extends ApiBaseController
      *     required=false,
      *     in="formData",
      *     type="string"
+     * ),
+     *    @SWG\Parameter(
+     *     name="social_id",
+     *     description="Social Id",
+     *     required=false,
+     *     in="formData",
+     *     type="string"
      * )
      * )
      */

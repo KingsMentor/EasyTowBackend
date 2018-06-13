@@ -222,5 +222,67 @@ class APIOthersController extends ApiBaseController
     }
 
 
+    /**
+     * @SWG\Post(
+     *   path="/api/check/socialId",
+     *     tags={"user"},
+     *   summary="checking if an email exist",
+     *   @SWG\Response(
+     *     response=200,
+     *     description="check if email exist"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="social_id",
+     *     description="social id field",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * )
+     * )
+     */
+    public function check_social_id(Request $request){
+        $app_const = $this->APP_CONSTANT;
+        $email = false;
+        $message = "Social Id doesn't exist";
 
+        try {
+            $this->validate($request, [
+                'social_id' => 'required'
+            ]);
+
+            $app_const = $this->APP_CONSTANT;
+
+            $user = User::where('social_id',$request->social_id)->first();
+
+            if($user){
+                $email = true;
+                $message = "Social Id exist";
+            }
+
+            $response = [
+                'message' => $message,
+                'data' => [
+                    'social_id' => $email
+                ],
+                'status' => true
+            ];
+
+
+            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+            return new JsonResponse($response);
+
+        } catch (JWTException $e) {
+            // Something went wrong whilst attempting to encode the token
+            return $this->onJwtGenerationError();
+
+        } catch (ValidationException $e) {
+            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
+        } catch (\Exception $e) {
+            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+        }
+
+
+        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+        return new JsonResponse($response);
+    }
 }

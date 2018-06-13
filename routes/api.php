@@ -36,6 +36,7 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
     $api->post('auth/send-password-reset-link', 'APIAuthenticateController@send_password_reset_link');
     $api->post('/check/phone', 'APIOthersController@checkPhoneNo');
     $api->post('/check/email', 'APIOthersController@checkEmail');
+    $api->post('/check/socialId', 'APIOthersController@check_social_id');
 
     $api->group(['middleware' => 'api.aut'], function ($api) {
         $api->post('/auth/change-password', 'APIAuthenticateController@change_password');
