@@ -82,7 +82,7 @@ class APIAuthenticateController extends ApiBaseController
     public function postLogin(Request $request)
     {
         $app_const = $this->APP_CONSTANT;
-        try {
+//        try {
             $validator = Validator::make($request->all(), [
                 'phone' => 'required|max:255',
                 'password' => 'required',
@@ -101,15 +101,15 @@ class APIAuthenticateController extends ApiBaseController
             // All good so return the token
 
             return $this->onAuthorized($token);
-        } catch (JWTException $e) {
-            // Something went wrong whilst attempting to encode the token
-            return $this->onJwtGenerationError();
-
-        } catch (ValidationException $e) {
-            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
-        } catch (\Exception $e) {
-            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
-        }
+//        } catch (JWTException $e) {
+//            // Something went wrong whilst attempting to encode the token
+//            return $this->onJwtGenerationError();
+//
+//        } catch (ValidationException $e) {
+//            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
+//        } catch (\Exception $e) {
+//            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+//        }
 
     }
 
