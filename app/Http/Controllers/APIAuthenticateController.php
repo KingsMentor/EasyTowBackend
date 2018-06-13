@@ -64,8 +64,8 @@ class APIAuthenticateController extends ApiBaseController
      *     description="authorization token with user's data"
      *   ),
      *   @SWG\Parameter(
-     *     name="email",
-     *     description="User's email address",
+     *     name="phone",
+     *     description="User's phone number",
      *     required=true,
      *     in= "formData",
      *     type="string"
@@ -84,7 +84,7 @@ class APIAuthenticateController extends ApiBaseController
         $app_const = $this->APP_CONSTANT;
         try {
             $validator = Validator::make($request->all(), [
-                'email' => 'required|email|max:255',
+                'phone' => 'required|max:255',
                 'password' => 'required',
             ]);
 
@@ -94,7 +94,7 @@ class APIAuthenticateController extends ApiBaseController
 
 
             // Attempt to verify the credentials and create a token for the user
-            if (!$token = JWTAuth::attempt(['email' => $request->email,'password' => $request->password,'type' => "4"])) {
+            if (!$token = JWTAuth::attempt(['phone' => $request->phone,'password' => $request->password,'type' => "4"])) {
                 return $this->onUnauthorized();
             }
 
@@ -131,7 +131,7 @@ class APIAuthenticateController extends ApiBaseController
      * ),
      *    @SWG\Parameter(
      *     name="last_name",
-     *     description="User's first name",
+     *     description="User's last name",
      *     required=true,
      *     in= "formData",
      *     type="string"
