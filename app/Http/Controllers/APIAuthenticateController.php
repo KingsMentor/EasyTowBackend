@@ -7,7 +7,9 @@ use App\Driver;
 use App\Transformers\AddressTransformer;
 use App\Transformers\DriverTransformer;
 use App\Transformers\UserTransformer;
+use App\Transformers\VehicleTransformer;
 use App\User;
+use App\Vehicle;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -981,5 +983,151 @@ class APIAuthenticateController extends ApiBaseController
             return genericResponse($app_const['EXCEPTION'], $app_const['EXCEPTION_CODE'], $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
         }
     }
-    
+
+    /**
+     * @SWG\Post(
+     *   path="/api/add/vehicle",
+     *   summary="add Vechile",
+     *      tags={"user"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="JWT token to be sent with every request with the user's detail"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="token",
+     *     description="token",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * ),
+     *   @SWG\Parameter(
+     *     name="name",
+     *     description="name",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * ),
+     *     @SWG\Parameter(
+     *     name="plate_no",
+     *     description="plate_no",
+     *     required=true,
+     *     in="formData",
+     *     type="string"
+     * ),
+     *     @SWG\Parameter(
+     *     name="type",
+     *     description="type",
+     *     required=true,
+     *     in="formData",
+     *     type="string"
+     * )
+     * )
+     */
+    public function addVehicle(Request $request){
+        $app_const = $this->APP_CONSTANT;
+        try {
+            $this->validate($request,[
+                'name' => 'required',
+                'plate_no' => 'required',
+                'type' => 'required'
+            ]);
+            if (!$user = JWTAuth::parseToken()->authenticate()) {
+                return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
+            }
+
+
+            $vehicle = Vehicle::create([
+                'manufacturer' => $request->name,
+                'plate_no' => $request->plate_no,
+                'type' => $request->type,
+                'user_id' => $user->id
+            ]);
+
+            $vehic_transform = new VehicleTransformer();
+
+            $response = [
+                'message' => "vehicle",
+                'data' => [
+                    'vehicle' => $vehic_transform->transform($vehicle)
+                ],
+                'status' => true
+            ];
+
+
+            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+            return new JsonResponse($response);
+
+
+
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return genericResponse($app_const["TOKEN_INVALIDATED"], '401', $request);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return genericResponse($app_const['TOKEN_INVALID'], '401', $request);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return genericResponse($app_const['EXCEPTION'], "500", $request);
+        } catch (\Exception $e) {
+            return genericResponse($app_const['EXCEPTION'], $app_const['EXCEPTION_CODE'], $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+        }
+    }
+
+
+    /**
+     * @SWG\Post(
+     *   path="/api/vehicles",
+     *   summary="add Vechile",
+     *      tags={"user"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="JWT token to be sent with every request with the user's detail"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="token",
+     *     description="token",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * )
+     * )
+     */
+    public function vehicles(Request $request){
+        $app_const = $this->APP_CONSTANT;
+        try {
+
+            if (!$user = JWTAuth::parseToken()->authenticate()) {
+                return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
+            }
+
+            $vehicles = Vehicle::where('user_id',$user->id)->get();
+            $vehic_transform = new VehicleTransformer();
+            $t = [];
+            foreach($vehicles as $vehicle){
+                $t[] = $vehic_transform->transform($vehicle);
+            }
+
+
+            $response = [
+                'message' => "vehicles",
+                'data' => [
+                    'vehicle' => $t
+                ],
+                'status' => true
+            ];
+
+
+            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+            return new JsonResponse($response);
+
+
+
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return genericResponse($app_const["TOKEN_INVALIDATED"], '401', $request);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return genericResponse($app_const['TOKEN_INVALID'], '401', $request);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return genericResponse($app_const['EXCEPTION'], "500", $request);
+        } catch (\Exception $e) {
+            return genericResponse($app_const['EXCEPTION'], $app_const['EXCEPTION_CODE'], $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+        }
+    }
+
 }
