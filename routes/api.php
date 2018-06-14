@@ -43,6 +43,10 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
         $api->post('/auth/update/profile', 'APIAuthenticateController@update_profile');
         $api->post('/auth/add/address', 'APIAuthenticateController@add_address');
         $api->post('/auth/remove/address', 'APIAuthenticateController@remove_address');
+        $api->post('/add/card', 'APIOthersController@addCard');
+        $api->post('/delete/card', 'APIOthersController@deleteCard');
+        $api->post('/my/card', 'APIOthersController@allCards');
+        $api->post('/card/default', 'APIOthersController@makeDefault');
 
         $api->delete('/auth/invalidate', [
             'uses' => 'APIAuthenticateController@deleteInvalidate',

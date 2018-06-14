@@ -23,7 +23,7 @@ class APIAuthenticateController extends ApiBaseController
     /**
      * @SWG\Swagger(
      *     schemes={"http"},
-     *     host="easytow.coincedar.com/",
+     *     host="easytow.coincedar.com",
      *     basePath="/",
      *     @SWG\Info(
      *         version="1.0.0",
@@ -202,9 +202,7 @@ class APIAuthenticateController extends ApiBaseController
 
 
             // Attempt to verify the credentials and create a token for the user
-            if (!$token = JWTAuth::attempt(
-                $this->getCredentials($request))
-            ) {
+            if (!$token = JWTAuth::attempt(['phone_no' => $request->phone_no,'password' => $request->password])) {
                 return genericResponse($app_const["TOKEN_CREATION_ERR"], "404", $request);
             }
 
