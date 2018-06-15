@@ -596,7 +596,7 @@ class APIOthersController extends ApiBaseController
             if (!$user = JWTAuth::parseToken()->authenticate()) {
                 return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
             }
-            $cards = Card::where('id',$user->id)->get();
+            $cards = Card::where('user_id',$user->id)->get();
             $tr_card = new CardTransformer();
             $c_i = [];
 
