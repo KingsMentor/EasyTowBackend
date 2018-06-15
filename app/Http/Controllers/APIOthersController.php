@@ -342,7 +342,7 @@ class APIOthersController extends ApiBaseController
     public function addCard(Request $request){
         $app_const = $this->APP_CONSTANT;
 
-//        try {
+        try {
 
             $accessToken = !empty(session('accessToken')) ? session('accessToken') : null;
             $this->moneywave = new Moneywave($accessToken);
@@ -368,10 +368,7 @@ class APIOthersController extends ApiBaseController
             }
             $card_no = str_pad(substr($data['cardToken'], -4), strlen($data['cardToken']), '*', STR_PAD_LEFT);
 
-            User::where('id',$user->id)->update([
-                'access_code' => $data['cardToken'],
-                'card_no' => $card_no
-            ]);
+            
 
             $card = Card::where('user_id',$user->id)->where('access_token',$data['cardToken'])->first();
             if(!$card){
@@ -397,15 +394,15 @@ class APIOthersController extends ApiBaseController
             generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
             return new JsonResponse($response);
 
-//        } catch (JWTException $e) {
-//            // Something went wrong whilst attempting to encode the token
-//            return $this->onJwtGenerationError();
-//
-//        } catch (ValidationException $e) {
-//            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
-//        } catch (\Exception $e) {
-//            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
-//        }
+        } catch (JWTException $e) {
+            // Something went wrong whilst attempting to encode the token
+            return $this->onJwtGenerationError();
+
+        } catch (ValidationException $e) {
+            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
+        } catch (\Exception $e) {
+            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+        }
 
 
         generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
