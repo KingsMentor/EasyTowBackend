@@ -997,7 +997,7 @@ class APIAuthenticateController extends ApiBaseController
      *     name="token",
      *     description="token",
      *     required=true,
-     *     in= "formData",
+     *     in= "query",
      *     type="string"
      * ),
      *   @SWG\Parameter(
@@ -1084,7 +1084,7 @@ class APIAuthenticateController extends ApiBaseController
      *     name="token",
      *     description="token",
      *     required=true,
-     *     in= "formData",
+     *     in= "query",
      *     type="string"
      * )
      * )
