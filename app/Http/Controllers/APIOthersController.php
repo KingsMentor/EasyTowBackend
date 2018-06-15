@@ -342,7 +342,7 @@ class APIOthersController extends ApiBaseController
     public function addCard(Request $request){
         $app_const = $this->APP_CONSTANT;
 
-        try {
+//        try {
 
             $accessToken = !empty(session('accessToken')) ? session('accessToken') : null;
             $this->moneywave = new Moneywave($accessToken);
@@ -397,15 +397,15 @@ class APIOthersController extends ApiBaseController
             generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
             return new JsonResponse($response);
 
-        } catch (JWTException $e) {
-            // Something went wrong whilst attempting to encode the token
-            return $this->onJwtGenerationError();
-
-        } catch (ValidationException $e) {
-            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
-        } catch (\Exception $e) {
-            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
-        }
+//        } catch (JWTException $e) {
+//            // Something went wrong whilst attempting to encode the token
+//            return $this->onJwtGenerationError();
+//
+//        } catch (ValidationException $e) {
+//            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
+//        } catch (\Exception $e) {
+//            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+//        }
 
 
         generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
