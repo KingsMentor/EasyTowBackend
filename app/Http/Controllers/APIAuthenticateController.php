@@ -1036,6 +1036,18 @@ class APIAuthenticateController extends ApiBaseController
             }
 
 
+
+
+            $vehicles = Vehicle::where('user_id',$user->id)->get();
+
+            $vehic_transform = new VehicleTransformer();
+
+            $t = [];
+            foreach($vehicles as $vehice){
+                $t[] = $vehic_transform->transform($vehice);
+            }
+
+
             $vehicle = Vehicle::create([
                 'manufacturer' => $request->name,
                 'plate_no' => $request->plate_no,
@@ -1043,12 +1055,12 @@ class APIAuthenticateController extends ApiBaseController
                 'user_id' => $user->id
             ]);
 
-            $vehic_transform = new VehicleTransformer();
 
             $response = [
                 'message' => "vehicle",
                 'data' => [
-                    'vehicle' => $vehic_transform->transform($vehicle)
+                    'vehicle' => $vehic_transform->transform($vehicle),
+                    'vehicles' => $t
                 ],
                 'status' => true
             ];
