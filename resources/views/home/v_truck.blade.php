@@ -127,7 +127,7 @@
                                     </div>
                                 </div>
 
-                                <div class="o-media">
+                                <div class="o-media u-mb-small">
                                     <div class="o-media__img u-mr-xsmall">
                                         <p>Plate No:</p>
 
@@ -140,7 +140,7 @@
                                 </div>
 
 
-                                <div class="o-media">
+                                <div class="o-media u-mb-small">
                                     <div class="o-media__img u-mr-xsmall">
                                         <p>Chasis No:</p>
 
