@@ -46,6 +46,16 @@
                             <input class="c-input" type="text" name="plate_no" id="user-phone">
                         </div>
 
+                        <div class="c-field u-mb-medium">
+                            <label class="c-field__label" for="user-phone">Engine No</label>
+                            <input class="c-input" type="text" name="engine_no" id="user-phone">
+                        </div>
+
+                        <div class="c-field u-mb-medium">
+                            <label class="c-field__label" for="user-phone">Chasis No</label>
+                            <input class="c-input" type="text" name="chasis_no" id="user-phone">
+                        </div>
+
                     </div>
 
 

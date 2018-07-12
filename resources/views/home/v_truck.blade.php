@@ -50,7 +50,7 @@
 
                                     @else
                                     <p>No Driver found, if you have a driver click the button below.</p>
-                                    <button class="c-btn c-btn--info c-btn--fullwidth c-btn--outline" data-toggle="modal" data-target="#modal-delete">Add Driver</button>
+                                    <button class="c-btn c-btn--info c-btn--fullwidth c-btn--outline" data-toggle="modal" data-target="#modal-delete">Select A Driver</button>
 
                                     <div class="c-modal c-modal--small modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="modal-delete">
                                         <div class="c-modal__dialog modal-dialog" role="document">
@@ -61,10 +61,11 @@
                                     </span>
 
 <h3>Add a Driver</h3><br/>
+                                                    @if($drivers)
                                                    <form action="{{ url('add/driver/truck') }}" method="post">
                                                    @csrf
                                                         <label style="float:left;">Select a Driver</label>
-                                                       {!! Form::select('driver_id',$drivers,'',['class' => 'c-select__input']) !!}
+                                                       {!! Form::select('driver_id',["Select a Driver"] + $drivers,'',['class' => 'c-select__input']) !!}
 <br/>
 <input type="hidden" name="id" value="{{ $truck->id }}"/>
                                                     <div class="u-text-center">
@@ -72,6 +73,10 @@
                                                         <button type="submit" class="c-btn c-btn--info">Add</button>
                                                     </div>
                                                    </form>
+                                                        @else
+                                                        <a href="{{ url('add/driver')  }}" class="c-btn c-btn--info c-btn--fullwidth c-btn--outline">Add A Driver</a>
+
+                                                    @endif
                                                 </div>
                                             </div><!-- // .c-modal__content -->
                                         </div><!-- // .c-modal__dialog -->

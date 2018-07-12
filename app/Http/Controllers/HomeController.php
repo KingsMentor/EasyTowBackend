@@ -109,6 +109,8 @@ class HomeController extends Controller
             'model' => 'required',
             'year' => 'required',
             'plate_no' => 'required',
+            'chasis_no' => 'required',
+            'engine_no' => 'required'
         ]);
 
         $data = $request->all();
