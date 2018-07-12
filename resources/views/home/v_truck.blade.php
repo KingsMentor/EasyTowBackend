@@ -139,6 +139,34 @@
                                     </div>
                                 </div>
 
+
+                                <div class="o-media">
+                                    <div class="o-media__img u-mr-xsmall">
+                                        <p>Chasis No:</p>
+
+                                    </div>
+
+                                    <div class="o-media__body u-flex u-justify-between">
+                                        <p>{{ $truck->chasis_no }}</p>
+
+                                    </div>
+                                </div>
+
+
+
+                                <div class="o-media">
+                                    <div class="o-media__img u-mr-xsmall">
+                                        <p>Engine No:</p>
+
+                                    </div>
+
+                                    <div class="o-media__body u-flex u-justify-between">
+                                        <p>{{ $truck->engine_no }}</p>
+
+                                    </div>
+                                </div>
+
+
                             </div>
                         </div>
                     </div>
