@@ -34,7 +34,7 @@
                                                 <input id="email" type="email" class="form-username form-element rounded medium{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required autofocus>
 
                                                 @if ($errors->has('email'))
-                                                    <span class="invalid-feedback">
+                                                    <span style="color: red" class="invalid-feedback">
                                         <strong>{{ $errors->first('email') }}</strong>
                                     </span>
                                                 @endif
@@ -46,7 +46,7 @@
                                                 <input id="password" type="password" class="form-password form-element rounded medium{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
 
                                                 @if ($errors->has('password'))
-                                                    <span class="invalid-feedback">
+                                                    <span style="color: red" class="invalid-feedback">
                                         <strong>{{ $errors->first('password') }}</strong>
                                     </span>
                                                 @endif

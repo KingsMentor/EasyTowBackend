@@ -44,7 +44,7 @@ class LoginController extends Controller
         return [
             "email" => $request->email,
             'password' => $request->password,
-            'type' => [1,2]
+            'type' => "!= 0"
         ];
     }
 }
