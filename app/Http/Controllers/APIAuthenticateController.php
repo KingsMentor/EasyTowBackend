@@ -1274,8 +1274,8 @@ class APIAuthenticateController extends ApiBaseController
             ]);
 
 
-            $vehicle = Vehicle::where('id',$request->vehicle_id)->delete();
-
+            $vehicle = Vehicle::where('id',$request->vehicle_id)->first();
+            Vehicle::where('id',$request->vehicle_id)->delete();
 
 
             $vehic_transform = new VehicleTransformer();
