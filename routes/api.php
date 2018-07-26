@@ -49,6 +49,8 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
         $api->post('/card/default', 'APIOthersController@makeDefault');
         $api->post('/add/vehicle', 'APIAuthenticateController@addVehicle');
         $api->post('/vehicles', 'APIAuthenticateController@vehicles');
+        $api->post('/vehicle/default', 'APIAuthenticateController@set_vehicle_default');
+        $api->delete('/delete/vehicle', 'APIAuthenticateController@delete_vehicle');
 
         $api->delete('/auth/invalidate', [
             'uses' => 'APIAuthenticateController@deleteInvalidate',

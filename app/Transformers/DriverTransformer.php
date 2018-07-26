@@ -24,6 +24,7 @@ class DriverTransformer extends TransformerAbstract
      */
     public function transform(Driver $user)
     {
+        $vehicle_transform = new VehicleTransformer();
         return [
             'id' =>  $user->id,
             'name' => $user->name,
@@ -31,7 +32,8 @@ class DriverTransformer extends TransformerAbstract
             'profile_pic' => $user->profile_pic,
             'phone_no' => $user->phone_no,
             'gps_lat' => $user->latitude,
-            'gps_lon' => $user->longitude
+            'gps_lon' => $user->longitude,
+            'vehicle' => ($user->truck) ? $vehicle_transform->transform($user->truck) : null
         ];
     }
 
