@@ -1177,7 +1177,7 @@ class APIAuthenticateController extends ApiBaseController
      */
     public function set_vehicle_default(Request $request){
         $app_const = $this->APP_CONSTANT;
-        try {
+//        try {
             $t = [];
             if (!$user = JWTAuth::parseToken()->authenticate()) {
                 return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
@@ -1224,15 +1224,15 @@ class APIAuthenticateController extends ApiBaseController
 
 
 
-        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-            return genericResponse($app_const["TOKEN_INVALIDATED"], '401', $request);
-        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-            return genericResponse($app_const['TOKEN_INVALID'], '401', $request);
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return genericResponse($app_const['EXCEPTION'], "500", $request);
-        } catch (\Exception $e) {
-            return genericResponse($app_const['EXCEPTION'], $app_const['EXCEPTION_CODE'], $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
-        }
+//        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+//            return genericResponse($app_const["TOKEN_INVALIDATED"], '401', $request);
+//        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+//            return genericResponse($app_const['TOKEN_INVALID'], '401', $request);
+//        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+//            return genericResponse($app_const['EXCEPTION'], "500", $request);
+//        } catch (\Exception $e) {
+//            return genericResponse($app_const['EXCEPTION'], $app_const['EXCEPTION_CODE'], $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+//        }
     }
 
 
