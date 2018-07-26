@@ -1091,7 +1091,7 @@ class APIAuthenticateController extends ApiBaseController
 
 
     /**
-     * @SWG\Delete(
+     * @SWG\Post(
      *   path="/api/vehicles",
      *   summary="add Vechile",
      *      tags={"vehicle"},
@@ -1237,7 +1237,7 @@ class APIAuthenticateController extends ApiBaseController
 
 
     /**
-     * @SWG\Post(
+     * @SWG\Delete(
      *   path="/api/delete/vehicle",
      *   summary="Delete Vehicle",
      *      tags={"vehicle"},
