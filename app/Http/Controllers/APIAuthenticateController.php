@@ -1028,7 +1028,7 @@ class APIAuthenticateController extends ApiBaseController
         try {
             $this->validate($request,[
                 'name' => 'required',
-                'plate_no' => 'required',
+                'plate_no' => 'required|unique:vehicles',
                 'type' => 'required'
             ]);
             if (!$user = JWTAuth::parseToken()->authenticate()) {
@@ -1047,12 +1047,19 @@ class APIAuthenticateController extends ApiBaseController
                 $t[] = $vehic_transform->transform($vehice);
             }
 
+            if($vehicles->count() == 0){
+                $option = "1";
+            }else{
+                $option = "0";
+            }
+
 
             $vehicle = Vehicle::create([
                 'manufacturer' => $request->name,
                 'plate_no' => $request->plate_no,
                 'type' => $request->type,
-                'user_id' => $user->id
+                'user_id' => $user->id,
+                'default' => $option
             ]);
 
 
@@ -1084,7 +1091,7 @@ class APIAuthenticateController extends ApiBaseController
 
 
     /**
-     * @SWG\Post(
+     * @SWG\Delete(
      *   path="/api/vehicles",
      *   summary="add Vechile",
      *      tags={"vehicle"},

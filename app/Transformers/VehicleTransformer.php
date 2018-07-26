@@ -29,7 +29,7 @@ class VehicleTransformer extends TransformerAbstract
             'name' => $vehicle->manufacturer,
             'plate_no' => $vehicle->plate_no,
             'type' => $vehicle->type,
-            'default' => ($vehicle->default == 0) ? true : false
+            'default' => ($vehicle->default == 0) ? false : true
         ];
     }
 
