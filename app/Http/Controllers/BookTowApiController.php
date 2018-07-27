@@ -359,6 +359,13 @@ class BookTowApiController extends ApiBaseController
      *     required=true,
      *     in= "formData",
      *     type="string"
+     * ),
+     *    @SWG\Parameter(
+     *     name="radius",
+     *     description="Radius",
+     *     required=false,
+     *     in= "formData",
+     *     type="string"
      * )
      * )
      */
