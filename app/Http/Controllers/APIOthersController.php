@@ -7,6 +7,8 @@ use App\Card;
 use App\GCMID;
 use App\Transformers\CardTransformer;
 use App\Transformers\UserTransformer;
+use App\Transformers\VehicleTransformer;
+use App\TruckCategory;
 use App\User;
 use Emmanix2002\Moneywave\Moneywave;
 use Illuminate\Http\JsonResponse;
@@ -635,6 +637,47 @@ class APIOthersController extends ApiBaseController
         return new JsonResponse($response);
     }
 
+
+    /**
+     * @SWG\Post(
+     *   path="/api/truck/category",
+     *     tags={"vehicle"},
+     *   summary=" get truck category",
+     *   @SWG\Response(
+     *     response=200,
+     *     description="vehicle"
+     *   )
+     * )
+     */
+    public function truckCategory(Request $request){
+        $app_const = $this->APP_CONSTANT;
+
+
+            $truck_categories = TruckCategory::all();
+            $c_i = [];
+
+            foreach($truck_categories as $category){
+                $c_i[] = [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'type' => optional($category->category)->name,
+                ];
+            }
+
+
+            $response = [
+                'message' => "All Categories",
+                'data' => [
+                    'categories' => $c_i
+                ],
+                'status' => true
+            ];
+
+
+            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+            return new JsonResponse($response);
+
+    }
 
 
 }

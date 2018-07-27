@@ -28,8 +28,9 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
     $api->post('auth/logout', 'APIAuthenticateController@logout');
     $api->post('driver/login', 'APIAuthenticateController@driverLogin');
     $api->post('driver/sign-up', 'APIAuthenticateController@driver_sign_up');
-    $api->post('update/gps', 'APIAuthenticateController@updateGPS');
-    $api->post('find/tow', 'APIAuthenticateController@find_tow');
+    $api->post('update/gps', 'BookTowApiController@updateGPS');
+    $api->post('list/driver', 'BookTowApiController@list_drivers');
+    $api->post('truck/category', 'APIOthersController@truckCategory');
 
     $api->post('transactions', 'APIAuthenticateController@transaction');
 
@@ -39,6 +40,7 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
     $api->post('/check/socialId', 'APIOthersController@check_social_id');
 
     $api->group(['middleware' => 'api.aut'], function ($api) {
+        $api->post('find/tow', 'BookTowApiController@find_tow');
         $api->post('/auth/change-password', 'APIAuthenticateController@change_password');
         $api->post('/auth/update/profile', 'APIAuthenticateController@update_profile');
         $api->post('/auth/add/address', 'APIAuthenticateController@add_address');
@@ -51,6 +53,7 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
         $api->post('/vehicles', 'APIAuthenticateController@vehicles');
         $api->post('/vehicle/default', 'APIAuthenticateController@set_vehicle_default');
         $api->delete('/delete/vehicle', 'APIAuthenticateController@delete_vehicle');
+        $api->delete('/get/tow/option', 'BookTowApi@getTowOption');
 
         $api->delete('/auth/invalidate', [
             'uses' => 'APIAuthenticateController@deleteInvalidate',

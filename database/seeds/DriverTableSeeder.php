@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Faker\Generator as Faker;
 
-class DatabaseSeeder extends Seeder
+
+class DriverTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,6 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-         $this->call(DriverTableSeeder::class);
+        factory(App\Driver::class, 150)->create();
     }
 }

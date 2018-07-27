@@ -25,7 +25,7 @@ class APIAuthenticateController extends ApiBaseController
     /**
      * @SWG\Swagger(
      *     schemes={"http"},
-     *     host="easytow.coincedar.com",
+     *     host="easytow.test",
      *     basePath="/",
      *     @SWG\Info(
      *         version="1.0.0",
@@ -775,170 +775,6 @@ class APIAuthenticateController extends ApiBaseController
         return new JsonResponse($response);
     }
 
-    /**
-     * @SWG\Post(
-     *   path="/api/update/gps",
-     *   summary="Register gps location",
-     *      tags={"booking"},
-     *   @SWG\Response(
-     *     response=200,
-     *     description="JWT token to be sent with every request with the user's detail"
-     *   ),
-     *   @SWG\Parameter(
-     *     name="token",
-     *     description="token",
-     *     required=true,
-     *     in= "formData",
-     *     type="string"
-     * ),
-     *   @SWG\Parameter(
-     *     name="gps_lat",
-     *     description="gps_lat",
-     *     required=true,
-     *     in= "formData",
-     *     type="string"
-     * ),
-     *     @SWG\Parameter(
-     *     name="gps_lon",
-     *     description="gps_lat",
-     *     required=true,
-     *     in="formData",
-     *     type="string"
-     * )
-     * )
-     */
-    public function updateGPS(Request $request)
-    {
-        $app_const = $this->APP_CONSTANT;
-
-
-        try {
-            $this->validate($request, [
-                'token' => 'required',
-                'gps_lat' => 'required',
-                'gps_lon' => 'required',
-            ]);
-
-            Driver::where('api_key',$request->token)->update([
-                'latitude' => $request->gps_lat,
-                'longitude' => $request->gps_lon
-            ]);
-            $driver = Driver::where('api_key',$request->token)->first();
-
-            $app_const = $this->APP_CONSTANT;
-            $transformer = new DriverTransformer();
-            $response = [
-                'message' => "Login Successful",
-                'data' => [
-                    'token' => $request->api_key,
-                    'user' => $transformer->transform($driver)
-                ],
-                'status' => true
-            ];
-
-
-            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
-            return new JsonResponse($response);
-
-        } catch (JWTException $e) {
-            // Something went wrong whilst attempting to encode the token
-            return $this->onJwtGenerationError();
-
-        } catch (ValidationException $e) {
-            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
-        } catch (\Exception $e) {
-            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
-        }
-
-
-        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
-        return new JsonResponse($response);
-    }
-
-    /**
-     * @SWG\Post(
-     *   path="/api/find/tow",
-     *   summary="Register gps location",
-     *      tags={"booking"},
-     *   @SWG\Response(
-     *     response=200,
-     *     description="find a tow within a location"
-     *   ),
-     *   @SWG\Parameter(
-     *     name="token",
-     *     description="token",
-     *     required=true,
-     *     in= "query",
-     *     type="string"
-     * ),
-     *   @SWG\Parameter(
-     *     name="gps_lat",
-     *     description="gps_lat",
-     *     required=true,
-     *     in= "formData",
-     *     type="string"
-     * ),
-     *     @SWG\Parameter(
-     *     name="gps_lon",
-     *     description="gps_lat",
-     *     required=true,
-     *     in="formData",
-     *     type="string"
-     * )
-     * )
-     */
-
-    public function find_tow(Request $request){
-        $app_const = $this->APP_CONSTANT;
-
-
-        try {
-            $this->validate($request, [
-                'gps_lat' => 'required',
-                'gps_lon' => 'required',
-                'radius' => 'required'
-            ]);
-
-            $drivers = Driver::geofence($request->gps_lat, $request->gps_lat, $request->radius, $request->radius);
-
-            $all = $drivers->get();
-            $transformer = new DriverTransformer();
-            $drivers_ = [];
-            foreach($all as $driver){
-                $drivers_[] = $transformer->transform($driver);
-            }
-
-
-            $app_const = $this->APP_CONSTANT;
-            $response = [
-                'message' => "Login Successful",
-                'data' => [
-                    'token' => $request->api_key,
-                    'driver' => $drivers_
-                ],
-                'status' => true
-            ];
-
-
-            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
-            return new JsonResponse($response);
-
-        } catch (JWTException $e) {
-            // Something went wrong whilst attempting to encode the token
-            return $this->onJwtGenerationError();
-
-        } catch (ValidationException $e) {
-            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
-        } catch (\Exception $e) {
-            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
-        }
-
-
-        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
-
-        return new JsonResponse($response);
-
-    }
 
 
     /**
@@ -1036,8 +872,6 @@ class APIAuthenticateController extends ApiBaseController
             }
 
 
-
-
             $vehicles = Vehicle::where('user_id',$user->id)->get();
 
             $vehic_transform = new VehicleTransformer();
@@ -1057,7 +891,7 @@ class APIAuthenticateController extends ApiBaseController
             $vehicle = Vehicle::create([
                 'manufacturer' => $request->name,
                 'plate_no' => $request->plate_no,
-                'type' => $request->type,
+                'type_id' => $request->type,
                 'user_id' => $user->id,
                 'default' => $option
             ]);
