@@ -38,6 +38,7 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
     $api->post('/check/phone', 'APIOthersController@checkPhoneNo');
     $api->post('/check/email', 'APIOthersController@checkEmail');
     $api->post('/check/socialId', 'APIOthersController@check_social_id');
+    $api->post('/get/tow/option', 'BookTowApiController@getTowOption');
 
     $api->group(['middleware' => 'api.aut'], function ($api) {
         $api->post('find/tow', 'BookTowApiController@find_tow');
@@ -53,7 +54,6 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
         $api->post('/vehicles', 'APIAuthenticateController@vehicles');
         $api->post('/vehicle/default', 'APIAuthenticateController@set_vehicle_default');
         $api->delete('/delete/vehicle', 'APIAuthenticateController@delete_vehicle');
-        $api->post('/get/tow/option', 'BookTowApiController@getTowOption');
 
         $api->delete('/auth/invalidate', [
             'uses' => 'APIAuthenticateController@deleteInvalidate',
