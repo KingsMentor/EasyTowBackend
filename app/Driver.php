@@ -8,7 +8,7 @@ use Geographical;
 class Driver extends Authenticatable
 {
     use Notifiable;
-
+    protected static $kilometers = true;
     public $guarded = [];
 
     public function truck(){
