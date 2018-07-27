@@ -89,7 +89,7 @@ class BookTowApiController extends ApiBaseController
                 $pricing_calculation[] = [
                     'id' => $type->id,
                     'name' => $type->name,
-                    'pricing' => distance($request->gps_lat_from,$request->gps_lng_from,$request->gps_lat_to,$request->gps_lng_to,'K') * $type->price_per_km
+                    'pricing' => number_format(distance($request->gps_lat_from,$request->gps_lng_from,$request->gps_lat_to,$request->gps_lng_to,'K') * $type->price_per_km,0)
                 ];
             }
 
