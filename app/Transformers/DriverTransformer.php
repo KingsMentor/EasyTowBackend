@@ -33,7 +33,7 @@ class DriverTransformer extends TransformerAbstract
             'phone_no' => $user->phone_no,
             'gps_lat' => $user->latitude,
             'gps_lon' => $user->longitude,
-            'vehicle' => ($user->truck) ? $vehicle_transform->transform($user->truck) : null
+            'vehicle' => ($user->vehicle) ? $vehicle_transform->transform($user->vehicle) : null
         ];
     }
 
