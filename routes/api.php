@@ -53,7 +53,7 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
         $api->post('/vehicles', 'APIAuthenticateController@vehicles');
         $api->post('/vehicle/default', 'APIAuthenticateController@set_vehicle_default');
         $api->delete('/delete/vehicle', 'APIAuthenticateController@delete_vehicle');
-        $api->delete('/get/tow/option', 'BookTowApi@getTowOption');
+        $api->post('/get/tow/option', 'BookTowApi@getTowOption');
 
         $api->delete('/auth/invalidate', [
             'uses' => 'APIAuthenticateController@deleteInvalidate',
