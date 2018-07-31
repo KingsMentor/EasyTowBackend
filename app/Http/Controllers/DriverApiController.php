@@ -25,7 +25,7 @@ class DriverApiController extends Controller
     /**
      * @SWG\Post(
      *   path="/api/driver/status",
-     *   summary="Register gps location",
+     *   summary="update driver's status",
      *      tags={"driver"},
      *   @SWG\Response(
      *     response=200,
