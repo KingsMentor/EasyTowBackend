@@ -34,6 +34,7 @@ class DriverTransformer extends TransformerAbstract
             'gps_lat' => $user->latitude,
             'gps_lon' => $user->longitude,
             'approval_status' => 'approved',
+            'online_status' => ($user->online_status == "1" ? "online" : "offline"),
             'vehicle' => ($user->truck) ? $vehicle_transform->transform($user->truck) : null
         ];
     }

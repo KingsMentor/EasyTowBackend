@@ -31,6 +31,7 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
     $api->post('update/gps', 'BookTowApiController@updateGPS');
     $api->post('list/driver', 'BookTowApiController@list_drivers');
     $api->post('truck/category', 'APIOthersController@truckCategory');
+    $api->post('driver/status', 'DriverApiController@driverStatus');
 
     $api->post('transactions', 'APIAuthenticateController@transaction');
 
