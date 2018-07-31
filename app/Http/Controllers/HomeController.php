@@ -197,6 +197,9 @@ class HomeController extends Controller
             $request_data['company_id'] = get_session()->id;
         }
         $request_data['password'] = Hash::make($request_data['password']);
+
+        $request_data['api_key'] = $this->generateRandomString(50);
+
         $driver = Driver::create($request_data);
 
         Vehicle::where('id',$truck_id)->update([
