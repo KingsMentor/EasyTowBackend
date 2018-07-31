@@ -205,9 +205,11 @@ class HomeController extends Controller
 
         session()->flash('alert-success',"Driver has been successfully added");
 
-
-        return redirect()->to('/driver');
-
+        if(auth()->user()->type == "0"){
+            return redirect()->to('/driver/'.encrypt_decrypt('encrypt',$driver->id));
+        }else {
+            return redirect()->to('/driver');
+        }
 
     }
 
