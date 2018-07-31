@@ -8,6 +8,7 @@ use App\Driver;
 use App\User;
 use App\Vehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class HomeController extends Controller
 {
@@ -173,6 +174,8 @@ class HomeController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'profile_pic' => 'required|image|mimes:jpg,png,jpeg',
+            'email' => 'required|unique:drivers',
+            'password' => 'required',
             'license' => 'required|mimes:pdf,docx,doc',
             'phone_no' => 'required'
         ]);
@@ -193,6 +196,7 @@ class HomeController extends Controller
         if(auth()->user()->type != "0") {
             $request_data['company_id'] = get_session()->id;
         }
+        $request_data['password'] = Hash::make($request_data['password']);
         $driver = Driver::create($request_data);
 
         Vehicle::where('id',$truck_id)->update([

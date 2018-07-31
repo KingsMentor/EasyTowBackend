@@ -33,6 +33,11 @@
                             </div>
 
                             <div class="c-field u-mb-medium">
+                                <label class="c-field__label" for="user-name">Email</label>
+                                <input class="c-input" type="text" name="email" value="{{ old('email') }}" id="email">
+                            </div>
+
+                            <div class="c-field u-mb-medium">
                                 <label class="c-field__label" for="user-name">Phone No</label>
                                 <input class="c-input" type="text" name="phone_no" value="{{ old('phone_no') }}" id="user-name">
                             </div>
@@ -51,6 +56,11 @@
                             <div class="c-field u-mb-medium">
                                 <label class="c-field__label" for="user-phone">Truck</label>
                                 {!! Form::select('truck_id',$trucks,old('truck_id'),['class' => "c-select__input"]) !!}
+                            </div>
+
+                            <div class="c-field u-mb-medium">
+                                <label class="c-field__label" for="user-name">Password</label>
+                                <input class="c-input" type="text" name="password" value="{{ old('password') }}" id="password">
                             </div>
 
                         </div>
