@@ -60,7 +60,7 @@
 
                             <div class="c-field u-mb-medium">
                                 <label class="c-field__label" for="user-name">Password</label>
-                                <input class="c-input" type="text" name="password" value="{{ old('password') }}" id="password">
+                                <input class="c-input" type="password" name="password" value="{{ old('password') }}" id="password">
                             </div>
 
                         </div>
