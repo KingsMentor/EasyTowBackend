@@ -273,7 +273,7 @@ class BookTowApiController extends ApiBaseController
         $app_const = $this->APP_CONSTANT;
 
 
-        try {
+//        try {
             $this->validate($request, [
                 'gps_lat_from' => 'required',
                 'gps_lng_from' => 'required',
@@ -311,20 +311,18 @@ class BookTowApiController extends ApiBaseController
             generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
             return new JsonResponse($response);
 
-        } catch (JWTException $e) {
-            // Something went wrong whilst attempting to encode the token
-            return $this->onJwtGenerationError();
+//        } catch (JWTException $e) {
+//            // Something went wrong whilst attempting to encode the token
+//            return $this->onJwtGenerationError();
+//
+//        } catch (ValidationException $e) {
+//            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
+//        } catch (\Exception $e) {
+//            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+//        }
 
-        } catch (ValidationException $e) {
-            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
-        } catch (\Exception $e) {
-            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
-        }
 
 
-        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
-
-        return new JsonResponse($response);
 
     }
 
