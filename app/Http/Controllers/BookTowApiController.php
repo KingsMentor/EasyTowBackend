@@ -280,7 +280,6 @@ class BookTowApiController extends ApiBaseController
                 'gps_lat_to' => 'required',
                 'gps_lng_to' => 'required',
                 'tow_options' => 'requried',
-                'vehicle_id' => 'requried',
             ]);
 
             $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 20 : 50);
