@@ -298,6 +298,7 @@ class BookTowApiController extends ApiBaseController
                 $driver_key = array_rand($drivers_);
 
                 $driver_a = Driver::where('id', $drivers_[$driver_key]->id)->first();
+                $driver_a = $transformer->transform($driver_a);
             }else{
                 $driver_a = null;
             }
