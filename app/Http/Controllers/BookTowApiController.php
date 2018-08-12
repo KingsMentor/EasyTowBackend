@@ -291,8 +291,10 @@ class BookTowApiController extends ApiBaseController
 
 
             foreach($all as $driver){
-                $drivers_[] =$driver;
+                $drivers_[] = $driver;
             }
+
+            print_r($drivers_);
             if(!empty($drivers_)) {
                 $driver_key = array_rand($drivers_);
 
