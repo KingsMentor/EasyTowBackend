@@ -285,11 +285,13 @@ class BookTowApiController extends ApiBaseController
             foreach($all as $driver){
                 $drivers_[] = $driver;
             }
+            if(!empty($drivers_)) {
+                $driver_key = array_rand($drivers_);
 
-            $driver_key = array_rand($drivers_);
-
-            $driver_a = Driver::where('id',$drivers_[$driver_key])->first();
-
+                $driver_a = Driver::where('id', $drivers_[$driver_key])->first();
+            }else{
+                $driver_a = [];
+            }
             $app_const = $this->APP_CONSTANT;
             $response = [
                 'message' => "Find a tow",
