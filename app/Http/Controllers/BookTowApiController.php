@@ -383,7 +383,7 @@ class BookTowApiController extends ApiBaseController
                 'gps_lng_from' => 'required',
             ]);
 
-            $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 10 : 50)->where('online_status','1');
+            $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 10 : 50);
 
             $all = $drivers->get();
             $transformer = new DriverTransformer();
