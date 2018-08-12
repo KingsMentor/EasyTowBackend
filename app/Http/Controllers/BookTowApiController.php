@@ -291,14 +291,13 @@ class BookTowApiController extends ApiBaseController
 
 
             foreach($all as $key => $driver){
-                $drivers_[$key] = $driver;
+                $drivers_[] = $driver;
             }
 
             if(!empty($drivers_)) {
                 $driver_key = array_rand($drivers_);
-                print_r($drivers_[$driver_key]);
 
-                $driver_a = Driver::where('id', $drivers_[$driver_key])->first();
+                $driver_a = Driver::where('id', $drivers_[$driver_key]->id)->first();
             }else{
                 $driver_a = null;
             }
