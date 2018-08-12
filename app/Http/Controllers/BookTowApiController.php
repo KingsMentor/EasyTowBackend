@@ -169,6 +169,7 @@ class BookTowApiController extends ApiBaseController
                 'latitude' => $request->gps_lat,
                 'longitude' => $request->gps_lon
             ]);
+
             $driver = Driver::where('api_key',$request->token)->first();
 
             $app_const = $this->APP_CONSTANT;
@@ -282,7 +283,7 @@ class BookTowApiController extends ApiBaseController
                 'tow_options' => 'required'
             ]);
 
-            $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 20 : 50);
+            $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 20 : 50)->where('online_status','1');
 
             $all = $drivers->get();
 
@@ -382,11 +383,12 @@ class BookTowApiController extends ApiBaseController
                 'gps_lng_from' => 'required',
             ]);
 
-            $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 10 : 50);
+            $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 10 : 50)->where('online_status','1');
 
             $all = $drivers->get();
             $transformer = new DriverTransformer();
             $drivers_ = [];
+
             foreach($all as $driver){
                 $drivers_[] = $transformer->transform($driver);
             }
