@@ -258,6 +258,13 @@ class BookTowApiController extends ApiBaseController
      *     required=false,
      *     in= "formData",
      *     type="string"
+     * ),
+     *   @SWG\Parameter(
+     *     name="radius",
+     *     description="radius",
+     *     required=false,
+     *     in= "formData",
+     *     type="string"
      * )
      * )
      */
@@ -278,6 +285,7 @@ class BookTowApiController extends ApiBaseController
             $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 20 : 50);
 
             $all = $drivers->get();
+            print_r($all);
             $transformer = new DriverTransformer();
             $drivers_ = [];
 
@@ -290,7 +298,7 @@ class BookTowApiController extends ApiBaseController
 
                 $driver_a = Driver::where('id', $drivers_[$driver_key])->first();
             }else{
-                $driver_a = [];
+                $driver_a = null;
             }
             $app_const = $this->APP_CONSTANT;
             $response = [
