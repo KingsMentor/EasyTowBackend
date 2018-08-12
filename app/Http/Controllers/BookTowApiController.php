@@ -255,7 +255,7 @@ class BookTowApiController extends ApiBaseController
      *   @SWG\Parameter(
      *     name="vehicle_id",
      *     description="vehicle option",
-     *     required=true,
+     *     required=false,
      *     in= "formData",
      *     type="string"
      * )
@@ -272,7 +272,7 @@ class BookTowApiController extends ApiBaseController
                 'gps_lng_from' => 'required',
                 'gps_lat_to' => 'required',
                 'gps_lng_to' => 'required',
-                'tow_options' => 'requried'
+                'tow_options' => 'required'
             ]);
 
             $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 20 : 50);
