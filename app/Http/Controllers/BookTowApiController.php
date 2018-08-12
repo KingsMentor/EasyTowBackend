@@ -285,13 +285,13 @@ class BookTowApiController extends ApiBaseController
             $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 20 : 50);
 
             $all = $drivers->get();
-            print_r($all);
+
             $transformer = new DriverTransformer();
             $drivers_ = [];
 
 
             foreach($all as $driver){
-                $drivers_[] = $driver;
+                $drivers_[] =$driver;
             }
             if(!empty($drivers_)) {
                 $driver_key = array_rand($drivers_);
