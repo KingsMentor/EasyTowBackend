@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\ApiLog;
 use App\Card;
 use App\Driver;
+use App\DriverTopic;
 use App\GCMID;
+use App\Topic;
 use App\Transformers\CardTransformer;
 use App\Transformers\DriverTransformer;
 use App\Transformers\UserTransformer;
@@ -14,9 +16,13 @@ use App\User;
 use Emmanix2002\Moneywave\Moneywave;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use LaravelFCM\Facades\FCM;
+use LaravelFCM\Message\PayloadDataBuilder;
+use LaravelFCM\Message\PayloadNotificationBuilder;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Validation\ValidationException;
+use LaravelFCM\Message\Topics;
 
 class BookTowApiController extends ApiBaseController
 {
@@ -169,11 +175,43 @@ class BookTowApiController extends ApiBaseController
                 'latitude' => $request->gps_lat,
                 'longitude' => $request->gps_lon
             ]);
+            $transformer = new DriverTransformer();
+
 
             $driver = Driver::where('api_key',$request->token)->first();
 
+            //send out the broadcast
+
+            $topics = DriverTopic::where('driver_id',$driver->id)->get();
+            foreach($topics as $topic){
+                $topic_u = Topic::where('id',$topic->topic_id)->first();
+                $drivers_on_topic = DriverTopic::where('topic_id',$topic_u->id)->get();
+                $driver_i = [];
+                foreach ($drivers_on_topic as $d){
+                    //driver on a topic
+                    $dri = Driver::where('id',$d->id)->first();
+                    $driver_i[] = $transformer->transform($dri);
+                }
+
+
+                $dataBuilder = new PayloadDataBuilder();
+                $dataBuilder->addData($driver_i);
+
+                $notificationBuilder = new PayloadNotificationBuilder('GPS LOCATION CHANGE');
+                $notificationBuilder->setBody('location change')
+                    ->setSound('default');
+
+                $notification = $notificationBuilder->build();
+                $data = $dataBuilder->build();
+
+
+
+                FCM::sendToTopic($topic, null, $notification, $data);
+
+            }
+
             $app_const = $this->APP_CONSTANT;
-            $transformer = new DriverTransformer();
+
             $response = [
                 'message' => "Login Successful",
                 'data' => [
@@ -197,9 +235,6 @@ class BookTowApiController extends ApiBaseController
             return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
         }
 
-
-        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
-        return new JsonResponse($response);
     }
 
     /**
@@ -377,10 +412,25 @@ class BookTowApiController extends ApiBaseController
         $app_const = $this->APP_CONSTANT;
 
 
-//        try {
+        try {
             $this->validate($request, [
                 'gps_lat_from' => 'required',
                 'gps_lng_from' => 'required',
+            ]);
+
+        if (!$user = JWTAuth::parseToken()->authenticate()) {
+            return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
+        }
+
+            $time = time();
+            $topic_name = 'topic_location_'.rand(1,9).rand().$time;
+
+            $topic = new Topics();
+            $topic->topic($topic_name);
+
+            $db_topic = Topic::create([
+                'name' => $topic_name,
+                'user_id' => $user->id
             ]);
 
             $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 10 : 50)->where('online_status','1');
@@ -391,6 +441,10 @@ class BookTowApiController extends ApiBaseController
 
             foreach($all as $driver){
                 $drivers_[] = $transformer->transform($driver);
+                DriverTopic::create([
+                    'driver_id' => $driver->id,
+                    'topic_id' => $db_topic->id
+                ]);
             }
 
 
@@ -398,7 +452,8 @@ class BookTowApiController extends ApiBaseController
             $response = [
                 'message' => "Find tow",
                 'data' => [
-                    'driver' => $drivers_
+                    'driver' => $drivers_,
+                    'topic' => $topic_name
                 ],
                 'status' => true
             ];
@@ -407,15 +462,15 @@ class BookTowApiController extends ApiBaseController
             generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
             return new JsonResponse($response);
 
-//        } catch (JWTException $e) {
-//            // Something went wrong whilst attempting to encode the token
-//            return $this->onJwtGenerationError();
-//
-//        } catch (ValidationException $e) {
-//            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
-//        } catch (\Exception $e) {
-//            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
-//        }
+        } catch (JWTException $e) {
+            // Something went wrong whilst attempting to encode the token
+            return $this->onJwtGenerationError();
+
+        } catch (ValidationException $e) {
+            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
+        } catch (\Exception $e) {
+            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+        }
 
 
 

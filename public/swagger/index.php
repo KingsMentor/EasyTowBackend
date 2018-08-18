@@ -75,7 +75,7 @@ window.onload = function() {
     if (url && url.length > 1) {
         url = decodeURIComponent(url[1]);
     } else {
-        url = "http://easytow.coincedar.com/api/doc";
+        url = "http://easytow.test/api/doc";
     }
   // Build a system
   const ui = SwaggerUIBundle({

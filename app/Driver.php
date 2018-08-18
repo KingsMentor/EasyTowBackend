@@ -10,6 +10,7 @@ class Driver extends Authenticatable
 {
     use Notifiable;
     use Geographical;
+
     protected static $kilometers = true;
 
     public $guarded = [];
