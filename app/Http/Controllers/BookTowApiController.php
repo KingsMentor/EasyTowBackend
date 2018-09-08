@@ -96,9 +96,9 @@ class BookTowApiController extends ApiBaseController
                     'id' => $type->id,
                     'name' => $type->name,
                     'pricing' =>
-                        (double)(distance($request->gps_lat_from,$request->gps_lng_from,$request->gps_lat_to,$request->gps_lng_to,'K')
-                        * $type->price_per_km) - 200 ." - " .(double)(
-                            distance($request->gps_lat_from,$request->gps_lng_from,$request->gps_lat_to,$request->gps_lng_to,'K') + 200),
+                        "₦".number_format((double)(distance($request->gps_lat_from,$request->gps_lng_from,$request->gps_lat_to,$request->gps_lng_to,'K')
+                        * $type->price_per_km) - 200,0 )." - " ."₦".number_format((double)(
+                            (distance($request->gps_lat_from,$request->gps_lng_from,$request->gps_lat_to,$request->gps_lng_to,'K')* $type->price_per_km) + 200),0),
                 ];
             }
 
