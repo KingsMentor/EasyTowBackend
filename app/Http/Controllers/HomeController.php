@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Bank;
 use App\Company;
 use App\Driver;
+use App\Trip;
 use App\User;
 use App\Vehicle;
 use Illuminate\Http\Request;
@@ -35,12 +36,22 @@ class HomeController extends Controller
         if(auth()->user()->type == "0"){
             $drivers = $drivers->count();
             $trucks = $trucks->count();
+            $driver = Driver::where('user_id', auth()->user()->id)->first();
+
+            $trips = Trip::where('driver_id',$driver->id)->where('status','1')->get();
+            $sum_trip = Trip::where('driver_id',$driver->id)->sum('amount');
         }else{
             $company = get_session();
             $drivers = $drivers->where('company_id',$company->id)->count();
             $trucks = $trucks->where('company_id',$company->id)->count();
+
+            $driver = Driver::where('company_id',$company->id)->pluck('id','id')->toArray();
+
+            $trips = Trip::whereIn('driver_id',$driver)->where('status','1')->get();
+            $sum_trip = Trip::whereIn('driver_id',$driver)->where('status','1')->sum('amount');
+
         }
-        return view('index')->with(compact('drivers','trucks'));
+        return view('index')->with(compact('drivers','trucks','trips','sum_trip'));
     }
 
     public function registration()
@@ -57,8 +68,8 @@ class HomeController extends Controller
         $data = [
             "first_name" => $request_data['first_name'],
             "last_name" => $request_data['last_name'],
-              "phone_no" => $request_data['phone_no'],
-              "type" =>  $request_data['type']
+            "phone_no" => $request_data['phone_no'],
+            "type" =>  $request_data['type']
         ];
 
 
@@ -255,11 +266,11 @@ class HomeController extends Controller
     }
 
     public function p_add_company(Request $request){
-       $request_data = $request->all();
-       $request_data['user_id'] = auth()->user()->id;
-       Company::create($request_data);
-       session()->flash('alert-success',"Company has been added.");
-       return redirect()->to('/companies');
+        $request_data = $request->all();
+        $request_data['user_id'] = auth()->user()->id;
+        Company::create($request_data);
+        session()->flash('alert-success',"Company has been added.");
+        return redirect()->to('/companies');
     }
 
     public function company_delete($id){
@@ -268,4 +279,5 @@ class HomeController extends Controller
         session()->flash('alert-success',"Company has been deleted");
         return back();
     }
+
 }

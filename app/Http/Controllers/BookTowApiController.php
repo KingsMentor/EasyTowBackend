@@ -11,18 +11,22 @@ use App\Topic;
 use App\Transformers\CardTransformer;
 use App\Transformers\DriverTransformer;
 use App\Transformers\UserTransformer;
+use App\Trip;
 use App\TruckCategoryType;
 use App\User;
 use Emmanix2002\Moneywave\Moneywave;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use LaravelFCM\Facades\FCM;
+use LaravelFCM\Message\OptionsBuilder;
 use LaravelFCM\Message\PayloadDataBuilder;
 use LaravelFCM\Message\PayloadNotificationBuilder;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Validation\ValidationException;
 use LaravelFCM\Message\Topics;
+
+
 
 class BookTowApiController extends ApiBaseController
 {
@@ -79,6 +83,8 @@ class BookTowApiController extends ApiBaseController
         $phone = false;
         $message = "Getting price range per km";
         $pricing_calculation = [];
+        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $request->all());
+
         try {
             $this->validate($request, [
                 'gps_lat_from' => 'required',
@@ -97,7 +103,7 @@ class BookTowApiController extends ApiBaseController
                     'name' => $type->name,
                     'pricing' =>
                         "₦".number_format((double)(distance($request->gps_lat_from,$request->gps_lng_from,$request->gps_lat_to,$request->gps_lng_to,'K')
-                        * $type->price_per_km) - 200,0 )." - " ."₦".number_format((double)(
+                                * $type->price_per_km) - 200,0 )." - " ."₦".number_format((double)(
                             (distance($request->gps_lat_from,$request->gps_lng_from,$request->gps_lat_to,$request->gps_lng_to,'K')* $type->price_per_km) + 200),0),
                 ];
             }
@@ -301,10 +307,31 @@ class BookTowApiController extends ApiBaseController
      *   @SWG\Parameter(
      *     name="radius",
      *     description="radius",
-     *     required=false,
+     *     required=true,
      *     in= "formData",
      *     type="string"
-     * )
+     * ),
+     *   @SWG\Parameter(
+     *     name="payment_type",
+     *     description="cash = 0, card = 1",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * ),
+     *   @SWG\Parameter(
+     *     name="payment_type",
+     *     description="cash = 0, card = 1",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * ),
+     *   @SWG\Parameter(
+     *     name="truck_type",
+     *     description="the truck type",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
+     * ),
      * )
      */
 
@@ -313,46 +340,94 @@ class BookTowApiController extends ApiBaseController
 
 
 //        try {
-            $this->validate($request, [
-                'gps_lat_from' => 'required',
-                'gps_lng_from' => 'required',
-                'gps_lat_to' => 'required',
-                'gps_lng_to' => 'required',
-                'tow_options' => 'required'
+        $this->validate($request, [
+            'gps_lat_from' => 'required',
+            'gps_lng_from' => 'required',
+            'gps_lat_to' => 'required',
+            'gps_lng_to' => 'required',
+            'tow_options' => 'required'
+        ]);
+
+        if (!$user = JWTAuth::parseToken()->authenticate()) {
+            return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
+        }
+        $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 20 : 50)->where('online_status','1');
+
+        $all = $drivers->get();
+
+        $transformer = new DriverTransformer();
+        $drivers_ = [];
+
+
+        foreach($all as $key => $driver){
+            $drivers_[] = $driver;
+        }
+
+        if(!empty($drivers_)) {
+            $driver_key = array_rand($drivers_);
+
+            $driver_a = Driver::where('id', $drivers_[$driver_key]->id)->first();
+            
+
+            //create a trip
+            $trip = Trip::create([
+                'driver_id' => $driver_a->id,
+                'user_id' => $user->id,
+                'from_gps_lat' => $request->gps_lat_from,
+                'from_gps_lng' => $request->gps_lng_from,
+                'to_gps_lat' => $request->gps_lat_to,
+                'to_gps_lng' => $request->gps_lng_to,
+                'payment_type' => $request->payment_type,
+                'truck_type' => $request->truck_type,
+                'tow_type' => $request->tow_options
             ]);
 
-            $drivers = Driver::geofence($request->gps_lat_from, $request->gps_lng_from, ($request->radius) ? $request->radius : 10, ($request->radius) ? $request->radius + 20 : 50)->where('online_status','1');
+            //get the push notification id of the driver
+            $optionBuilder = new OptionsBuilder();
+            $optionBuilder->setTimeToLive(60*20);
 
-            $all = $drivers->get();
+            $notificationBuilder = new PayloadNotificationBuilder('Easytow booking');
+            $notificationBuilder->setBody("Easy Tow")
+                ->setSound("default");
 
-            $transformer = new DriverTransformer();
-            $drivers_ = [];
+            $dataBuilder = new PayloadDataBuilder();
 
+            $dataBuilder->addData(['to_gps_lat' => $request->gps_lat_to,'from_gps_long' => $request->gps_lng_to,'user' => $user->toArray(),'trip_id' => $trip->id]);
 
-            foreach($all as $key => $driver){
-                $drivers_[] = $driver;
+            $option = $optionBuilder->build();
+            $notification = $notificationBuilder->build();
+            $data = $dataBuilder->build();
+            $driver_gcm =  GCMID::where('driver_id',$driver_a->id)->first();
+            $token = $driver_gcm->gcm_id;
+            try{
+                $downstreamResponse = FCM::sendTo($token, $option, null, $data);
+            }catch(\Exception $e){
+                $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
             }
+            sleep(20);
 
-            if(!empty($drivers_)) {
-                $driver_key = array_rand($drivers_);
+            $trip = Trip::where('id',$trip->id)->first();
 
-                $driver_a = Driver::where('id', $drivers_[$driver_key]->id)->first();
+            if($trip == "1"){
                 $driver_a = $transformer->transform($driver_a);
             }else{
-                $driver_a = null;
+                $driver_a = "";
             }
-            $app_const = $this->APP_CONSTANT;
-            $response = [
-                'message' => "Find a tow",
-                'data' => [
-                    'driver' => $driver_a
-                ],
-                'status' => true
-            ];
+        }else{
+            $driver_a = null;
+        }
+        $app_const = $this->APP_CONSTANT;
+        $response = [
+            'message' => "Find a tow",
+            'data' => [
+                'driver' => $driver_a
+            ],
+            'status' => true
+        ];
 
 
-            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
-            return new JsonResponse($response);
+        generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+        return new JsonResponse($response);
 
 //        } catch (JWTException $e) {
 //            // Something went wrong whilst attempting to encode the token
@@ -421,9 +496,9 @@ class BookTowApiController extends ApiBaseController
                 'gps_lng_from' => 'required',
             ]);
 
-        if (!$user = JWTAuth::parseToken()->authenticate()) {
-            return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
-        }
+            if (!$user = JWTAuth::parseToken()->authenticate()) {
+                return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
+            }
 
             $time = time();
             $topic_name = 'topic_location_'.rand(1,9).rand().$time;
@@ -476,6 +551,93 @@ class BookTowApiController extends ApiBaseController
         }
 
 
+
+    }
+
+
+    /**
+     * @SWG\Post(
+     *   path="/api/end/trip",
+     *   summary="endtrip",
+     *      tags={"booking"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="find a tow within a location"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="token",
+     *     description="token",
+     *     required=false,
+     *     in= "query",
+     *     type="string"
+     * ),
+     *   @SWG\Parameter(
+     *     name="trip_id",
+     *     description="trip_id",
+     *     required=false,
+     *     in= "formData",
+     *     type="string"
+     * )
+     * )
+     */
+
+    public function endtrip(Request $request){
+
+
+        try {
+            $this->validate($request, [
+                'token' => 'required',
+                'trip_id' => 'required'
+            ]);
+
+            $trip = Trip::where('id',$request->trip_id)->first();
+            $type = TruckCategoryType::where('id',$trip->tow_type)->first();
+
+            $amount = (double)(distance($trip->from_gps_lat,$trip->from_gps_lng,$request->to_gps_lat,$request->to_gps_lng,'K') * $type->price_per_km);
+
+            if($trip->payment_type == 1){
+                $message = "Collect Cash, Card currently not avaliable";
+                Trip::where('id',$request->trip_id)->update([
+                    'status' => '1',
+                    'amount' => $amount
+                ]);
+                $payment_type = "cash";
+            }else{
+                $message = "Kindly collect cash from the client";
+                Trip::where('id',$request->trip_id)->update([
+                    'status' => '1',
+                    'amount' => $amount
+                ]);
+                $payment_type = "cash";
+            }
+
+
+            $app_const = $this->APP_CONSTANT;
+            $transformer = new DriverTransformer();
+            $response = [
+                'message' => "Trip",
+                'data' => [
+                    'token' => $request->token,
+                    'trip' => $trip->toArray(),
+                    'amount' => number_format($amount, 0),
+                    'payment_type' => $payment_type
+                ],
+                'status' => true
+            ];
+
+
+            generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);
+            return new JsonResponse($response);
+
+        } catch (JWTException $e) {
+            // Something went wrong whilst attempting to encode the token
+            return $this->onJwtGenerationError();
+
+        } catch (ValidationException $e) {
+            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
+        } catch (\Exception $e) {
+            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
+        }
 
     }
 

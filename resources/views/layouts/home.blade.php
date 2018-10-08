@@ -45,7 +45,7 @@ closest Tow Vehicle based on the user’s current position and vehicle to be tow
             <nav class="side-navigation nav-block">
                 <ul>
                     <li class="current">
-                        <a href="#">Home</a>
+                        <a href="{{ url('/') }}">Home</a>
                     </li>
                     <li>
                         <a href="#">About</a>
@@ -78,8 +78,8 @@ closest Tow Vehicle based on the user’s current position and vehicle to be tow
                     <div class="column width-12 nav-bar-inner">
                         <div class="logo">
                             <div class="logo-inner">
-                                <a href="{{ url('/') }}"><img src="{{ url('/images/bdd.png') }}" alt="Logo" /></a>
-                                <a href="{{ url('/') }}"><img src="{{ url('/images/bdd.png') }}" alt="Logo" /></a>
+                                <a href="{{ url('/') }}"><img src="/images/logo.png"  style="width: 80%; margin-top: -10px;"  alt=" Logo" /></a>
+                                <a href="{{ url('/') }}"><img src="/images/logo.png" style="width: 80%;" alt=" Logo" /></a>
                             </div>
                         </div>
                         <nav class="navigation nav-block secondary-navigation nav-right">
@@ -93,20 +93,7 @@ closest Tow Vehicle based on the user’s current position and vehicle to be tow
                             </ul>
                         </nav>
                         <nav class="navigation nav-block primary-navigation nav-left sub-menu-indicator">
-                            <ul>
-                                <li class="current">
-                                    <a href="#home" class="scroll-link">Home</a>
-                                </li>
-                                <li>
-                                    <a href="#about" class="scroll-link">About Us</a>
-                                </li>
-                                <li >
-                                    <a href="#how-it-works" class="scroll-link">How It Works</a>
-                                 </li>
-                                <li>
-                                    <a href="{{ url('/login') }}">Login</a>
-                                </li>
-                            </ul>
+
                         </nav>
                     </div>
                 </div>

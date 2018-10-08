@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 class PagesController extends Controller
 {
     public function index(){
+        return view('home.home');
+    }
+
+    public function driver_index(){
         return view('home.index');
     }
 
@@ -26,5 +30,24 @@ class PagesController extends Controller
         session(['company' => json_encode($session)]);
 
         return back();
+    }
+
+    public function driver_(){
+        return view('home.index');
+    }
+    public function partner(){
+        return view('home.partner');
+    }
+
+    public function contact(){
+        return view('home.contact');
+    }
+
+    public function terms(){
+        return view('home.terms');
+    }
+
+    public function privacy(){
+        return view('home.privacy');
     }
 }

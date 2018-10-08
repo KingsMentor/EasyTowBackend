@@ -12,6 +12,9 @@
 */
 
 Route::get('/', "PagesController@index");
+Route::get('/contact', "PagesController@contact");
+Route::get('/terms', "PagesController@terms");
+Route::get('/privacy', "PagesController@privacy");
 Route::get('/api/doc', "PagesController@api_doc");
 Route::get('/select/session/{id}', "PagesController@select_session");
 
@@ -43,3 +46,5 @@ Route::group(['middleware' => 'payment_detail'],function(){
 Route::get('/registration', 'HomeController@registration')->name('home');
 Route::post('/registration', 'HomeController@p_registration')->name('home');
 Route::post('/home', 'HomeController@p_registration')->name('home');
+Route::get('/driver', 'PagesController@driver_')->name('driver');
+Route::get('/partner', 'PagesController@partner')->name('partner');

@@ -40,6 +40,7 @@ $api->version('v1', ['namespace' => '\App\Http\Controllers'], function ($api) {
     $api->post('/check/email', 'APIOthersController@checkEmail');
     $api->post('/check/socialId', 'APIOthersController@check_social_id');
     $api->post('/get/tow/option', 'BookTowApiController@getTowOption');
+    $api->post('/end/trip', 'BookTowApiController@endtrip');
 
     $api->group(['middleware' => 'api.aut'], function ($api) {
         $api->post('find/tow', 'BookTowApiController@find_tow');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ApiLog;
 use App\Card;
+use App\Driver;
 use App\GCMID;
 use App\Transformers\CardTransformer;
 use App\Transformers\UserTransformer;
@@ -178,20 +179,42 @@ class APIOthersController extends ApiBaseController
      *     required=true,
      *     in= "formData",
      *     type="string"
+     * ),
+     *   @SWG\Parameter(
+     *     name="driver",
+     *     description="0 =  user , 1 = driver",
+     *     required=true,
+     *     in= "formData",
+     *     type="string"
      * )
      * )
      */
     public function updateGCMIDS(Request $request){
+       
         $app_const = $this->APP_CONSTANT;
-
-        try {
+  
             $gcm_id =  $request->gcm_id;
-            if (!$user = JWTAuth::parseToken()->authenticate()) {
-                return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
+
+            if($request->driver == 1) {
+              
+                $user = Driver::where('api_key',$request->token)->first();
+            }else {
+                if (!$user = JWTAuth::parseToken()->authenticate()) {
+                    return genericResponse($app_const["MEMBER_NOT_FOUND"], 404, $request);
+                }
             }
 
-
                 /// check if gcm exist aready
+
+            if($request->driver == 1){
+                $OLD_gcm = GCMID::where('driver_id',$user->id)->first();
+                if($OLD_gcm)
+                {
+                    GCMID::where('driver_id',$user->id)->update(['gcm_id' => $gcm_id]);
+                }else{
+                    GCMID::create(['driver_id'=>$user->id,'gcm_id'=>$gcm_id]);
+                }
+            }else{
                 $OLD_gcm = GCMID::where('user_id',$user->id)->first();
                 if($OLD_gcm)
                 {
@@ -199,28 +222,22 @@ class APIOthersController extends ApiBaseController
                 }else{
                     GCMID::create(['user_id'=>$user->id,'gcm_id'=>$gcm_id]);
                 }
+            }
+
 
 
 
             $data = [
                 'message' => "GCM ID has been saved successfully",
                 'data' => [
-                    'gcm' => $request->gcm_id
+                    'gcm' => $gcm_id
                 ],
                 'status' => true
             ];
             return validResponse("Update successfully" , $data, $request);
 
 
-        } catch (JWTException $e) {
-            // Something went wrong whilst attempting to encode the token
-            return $this->onJwtGenerationError();
-
-        } catch (ValidationException $e) {
-            return genericResponse($app_const['VALIDATION_EXCEPTION'], $app_const['VALIDATION_EXCEPTION_CODE'], $request);
-        } catch (\Exception $e) {
-            return genericResponse($app_const['EXCEPTION'], '500', $request, ['message' => $e, 'stack_trace' => $e->getTraceAsString()]);
-        }
+       
 
 
         generic_logger("api/onAuthorized", "POST-INTERNAL", [], $response);

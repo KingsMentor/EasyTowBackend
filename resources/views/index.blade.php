@@ -14,7 +14,7 @@
                 </span>
 
                     <h3 class="c-text--subtitle">Trips</h3>
-                    <h1>N0.00</h1>
+                    <h1>{{ $trips->count() }}</h1>
                 </div>
             </div>
 @if(auth()->user()->type > 0)
@@ -51,7 +51,7 @@
                 </span>
 
                     <h3 class="c-text--subtitle">Revenue</h3>
-                    <h1>N0.00</h1>
+                    <h1>{{ number_format($sum_trip,0) }}</h1>
                 </div>
             </div>
         </div>
